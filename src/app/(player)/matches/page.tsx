@@ -19,6 +19,20 @@ const STATUS_STYLES: Record<string, string> = {
   "Da pronosticare": "bg-inter-gold/20 text-inter-navy-dark",
 };
 
+function TeamBadge({ label, variant }: { label: string; variant: "inter" | "opponent" }) {
+  return (
+    <span
+      className={`flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+        variant === "inter"
+          ? "bg-gradient-to-br from-inter-navy to-inter-black text-white"
+          : "bg-zinc-100 text-zinc-500"
+      }`}
+    >
+      {variant === "inter" ? "IN" : label.slice(0, 2).toUpperCase()}
+    </span>
+  );
+}
+
 export default async function MatchesPage() {
   const user = await getCurrentUser();
   const season = await getActiveSeason();
@@ -37,13 +51,14 @@ export default async function MatchesPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-8">
-      <h1 className="text-2xl font-semibold text-inter-navy">Partite — {season.label}</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-inter-navy">
+        Partite — {season.label}
+      </h1>
 
       <ul className="flex flex-col gap-3">
         {matches.map((match) => {
           const locked = now >= match.predictionDeadlineAt.getTime();
           const hasPredicted = match.predictions.length > 0;
-          const label = `Inter ${match.isHome ? "-" : "@"} ${match.opponent}`;
           const status = match.status === "FINISHED"
             ? "Conclusa"
             : locked
@@ -51,32 +66,60 @@ export default async function MatchesPage() {
               : hasPredicted
                 ? "Pronosticato"
                 : "Da pronosticare";
+          const finished = match.status === "FINISHED";
+
+          const homeName = match.isHome ? "Inter" : match.opponent;
+          const awayName = match.isHome ? match.opponent : "Inter";
 
           return (
             <li key={match.id}>
               <Link
                 href={`/matches/${match.id}`}
-                className="flex items-center justify-between rounded-xl border border-black/10 p-4 transition-colors hover:border-inter-navy/30 hover:bg-zinc-50"
+                className="group flex flex-col gap-3 rounded-2xl bg-surface p-4 shadow-card transition-all duration-150 hover:-translate-y-0.5 hover:shadow-card-hover"
               >
-                <div>
-                  <div className="font-medium">{label}</div>
-                  <div className="text-sm text-zinc-500">
-                    {COMPETITION_LABELS[match.competition] ?? match.competition} —{" "}
-                    {match.kickoffAt.toLocaleString("it-IT", {
-                      dateStyle: "medium",
-                      timeStyle: "short",
-                    })}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-medium tracking-wide text-zinc-400 uppercase">
+                    {COMPETITION_LABELS[match.competition] ?? match.competition}
+                  </span>
+                  <span className={`rounded-full px-2 py-0.5 font-medium ${STATUS_STYLES[status]}`}>
+                    {status}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-1 items-center gap-2">
+                    <TeamBadge label={homeName} variant={match.isHome ? "inter" : "opponent"} />
+                    <span className="truncate text-sm font-medium">{homeName}</span>
+                  </div>
+
+                  {finished ? (
+                    <span className="px-3 text-lg font-bold text-inter-navy">
+                      {match.homeScore} – {match.awayScore}
+                    </span>
+                  ) : (
+                    <span className="px-3 text-xs font-semibold text-zinc-300">VS</span>
+                  )}
+
+                  <div className="flex flex-1 items-center justify-end gap-2">
+                    <span className="truncate text-sm font-medium">{awayName}</span>
+                    <TeamBadge label={awayName} variant={!match.isHome ? "inter" : "opponent"} />
                   </div>
                 </div>
-                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[status]}`}>
-                  {status}
-                </span>
+
+                <div className="text-xs text-zinc-400">
+                  {match.kickoffAt.toLocaleString("it-IT", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })}
+                </div>
               </Link>
             </li>
           );
         })}
         {matches.length === 0 && (
-          <li className="text-sm text-zinc-500">Nessuna partita ancora in calendario.</li>
+          <li className="rounded-2xl bg-surface p-6 text-center text-sm text-zinc-500 shadow-card">
+            Nessuna partita ancora in calendario.
+          </li>
         )}
       </ul>
     </div>

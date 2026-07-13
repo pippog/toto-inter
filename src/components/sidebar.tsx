@@ -15,7 +15,6 @@ import {
   Menu,
   X,
   ChevronsLeft,
-  ChevronsRight,
 } from "lucide-react";
 import { Avatar } from "./avatar";
 
@@ -52,13 +51,18 @@ function NavLink({
       href={item.href}
       onClick={onNavigate}
       title={collapsed ? item.label : undefined}
-      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+      className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-150 ${
         active
-          ? "bg-inter-gold/15 text-inter-gold-light font-medium"
-          : "text-white/70 hover:bg-white/10 hover:text-white"
+          ? "bg-white/10 font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+          : "text-white/60 hover:bg-white/5 hover:text-white"
       }`}
     >
-      <Icon className="size-[18px] shrink-0" />
+      <span
+        className={`absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-inter-gold transition-all duration-150 ${
+          active ? "opacity-100" : "opacity-0 group-hover:opacity-30"
+        }`}
+      />
+      <Icon className={`size-[18px] shrink-0 ${active ? "text-inter-gold-light" : ""}`} />
       {!collapsed && <span>{item.label}</span>}
     </Link>
   );
@@ -94,7 +98,7 @@ export function Sidebar({
   return (
     <>
       {/* Barra superiore mobile: solo hamburger + wordmark, sidebar vera è off-canvas */}
-      <div className="flex items-center justify-between border-b border-black/10 bg-inter-navy px-4 py-3 md:hidden">
+      <div className="flex items-center justify-between bg-gradient-to-r from-inter-navy to-inter-navy-dark px-4 py-3 shadow-card md:hidden">
         <button
           type="button"
           onClick={() => setMobileOpen(true)}
@@ -109,22 +113,32 @@ export function Sidebar({
 
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/40 md:hidden"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-full flex-col bg-inter-navy transition-all duration-200 ease-in-out md:sticky md:top-0 md:z-0 md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-full flex-col bg-gradient-to-b from-inter-navy via-inter-navy to-inter-navy-dark shadow-card-hover transition-all duration-200 ease-in-out md:sticky md:top-0 md:z-0 md:translate-x-0 md:shadow-none ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
-        } ${collapsed ? "md:w-[72px]" : "md:w-60"} w-64`}
+        } ${collapsed ? "md:w-[72px]" : "md:w-64"} w-72`}
       >
-        <div className="flex items-center justify-between px-4 py-5">
-          {!collapsed && (
-            <span className="text-lg font-semibold tracking-tight text-white">
-              Toto<span className="text-inter-gold-light">-Inter</span>
+        <div className={`flex items-center px-4 py-6 ${collapsed ? "justify-center" : "justify-between"}`}>
+          <button
+            type="button"
+            onClick={() => collapsed && setCollapsed(false)}
+            aria-label={collapsed ? "Espandi il menu" : undefined}
+            className="flex items-center gap-2.5"
+          >
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-inter-gold to-inter-gold-light text-sm font-bold text-inter-navy-dark shadow-sm">
+              TI
             </span>
-          )}
+            {!collapsed && (
+              <span className="text-lg font-semibold tracking-tight text-white">
+                Toto<span className="text-inter-gold-light">-Inter</span>
+              </span>
+            )}
+          </button>
           <button
             type="button"
             onClick={() => setMobileOpen(false)}
@@ -133,18 +147,16 @@ export function Sidebar({
           >
             <X className="size-5" />
           </button>
-          <button
-            type="button"
-            onClick={() => setCollapsed((c) => !c)}
-            aria-label={collapsed ? "Espandi il menu" : "Comprimi il menu"}
-            className="hidden text-white/50 hover:text-white md:block"
-          >
-            {collapsed ? (
-              <ChevronsRight className="size-4" />
-            ) : (
+          {!collapsed && (
+            <button
+              type="button"
+              onClick={() => setCollapsed(true)}
+              aria-label="Comprimi il menu"
+              className="hidden text-white/40 transition-colors hover:text-white md:block"
+            >
               <ChevronsLeft className="size-4" />
-            )}
-          </button>
+            </button>
+          )}
         </div>
 
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3">
@@ -160,8 +172,14 @@ export function Sidebar({
 
           {isAdmin && (
             <>
-              <div className={`mt-4 mb-1 px-3 text-xs font-semibold tracking-wider text-white/40 ${collapsed ? "text-center" : ""}`}>
-                {collapsed ? "•" : "ADMIN"}
+              <div className={`mt-6 mb-2 flex items-center gap-2 px-3 ${collapsed ? "justify-center" : ""}`}>
+                {!collapsed && (
+                  <span className="h-px flex-1 bg-white/10" />
+                )}
+                <span className="text-[10px] font-semibold tracking-widest text-white/30">
+                  ADMIN
+                </span>
+                {!collapsed && <span className="h-px flex-1 bg-white/10" />}
               </div>
               {ADMIN_NAV.map((item) => (
                 <NavLink
@@ -176,11 +194,11 @@ export function Sidebar({
           )}
         </nav>
 
-        <div className="border-t border-white/10 px-3 py-4">
+        <div className="mx-3 mb-3 rounded-xl bg-white/5 p-2">
           {!collapsed && (
-            <div className="mb-2 flex items-center gap-2 px-3">
-              <Avatar name={userName} avatarUrl={avatarUrl} size={24} />
-              <p className="truncate text-xs text-white/50">{userName}</p>
+            <div className="mb-1 flex items-center gap-2 px-1 py-1">
+              <Avatar name={userName} avatarUrl={avatarUrl} size={26} />
+              <p className="truncate text-xs font-medium text-white/70">{userName}</p>
             </div>
           )}
           {logoutSlot}

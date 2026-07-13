@@ -21,7 +21,7 @@ export default async function AdminMatchesPage() {
           <li key={m.id}>
             <Link
               href={`/admin/matches/${m.id}/result`}
-              className="flex items-center justify-between rounded-xl border border-black/10 p-3 transition-colors hover:border-inter-navy/30 hover:bg-zinc-50"
+              className="flex items-center justify-between rounded-2xl bg-surface p-3 shadow-card transition-all duration-150 hover:-translate-y-0.5 hover:shadow-card-hover"
             >
               <span>
                 Inter {m.isHome ? "-" : "@"} {m.opponent} —{" "}

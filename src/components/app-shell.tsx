@@ -17,7 +17,7 @@ export function AppShell({
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
       <Sidebar userName={userName} avatarUrl={avatarUrl} isAdmin={isAdmin} logoutSlot={logoutSlot} />
-      <main className="flex-1 bg-white">{children}</main>
+      <main className="flex-1 bg-background">{children}</main>
     </div>
   );
 }

@@ -15,7 +15,7 @@ export function UserRow({ user, isSelf }: { user: User; isSelf: boolean }) {
   const [isPending, startTransition] = useTransition();
 
   return (
-    <li className="flex items-center justify-between gap-3 rounded-xl border border-black/10 px-3 py-2 text-sm">
+    <li className="flex items-center justify-between gap-3 rounded-2xl bg-surface shadow-card px-3 py-2 text-sm">
       <div className="flex items-center gap-3">
         <Avatar name={user.name} avatarUrl={user.avatarUrl} size={32} />
         <div className="flex flex-col">

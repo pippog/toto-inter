@@ -79,7 +79,7 @@ export default function RegolamentoPage() {
         </p>
       </section>
 
-      <section className="flex flex-col gap-2 rounded-xl border border-black/10 p-4">
+      <section className="flex flex-col gap-2 rounded-2xl bg-surface shadow-card p-4">
         <h2 className="font-medium text-inter-navy">Esempio</h2>
         <p>
           Siete in 4 a pronosticare. Indovini sia il risultato (in 2 su 4) sia il

@@ -19,7 +19,7 @@ export function ProfileForm({ initial }: { initial: Initial }) {
   return (
     <form
       action={action}
-      className="flex flex-col gap-3 rounded-xl border border-black/10 p-4"
+      className="flex flex-col gap-3 rounded-2xl bg-surface shadow-card p-4"
     >
       <h2 className="font-medium text-inter-navy">Modifica profilo</h2>
 
@@ -77,7 +77,7 @@ export function ProfileForm({ initial }: { initial: Initial }) {
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-lg bg-inter-navy px-4 py-2 text-white transition-colors hover:bg-inter-navy-light disabled:opacity-50"
+        className="self-start rounded-xl bg-inter-navy px-4 py-2.5 font-medium text-white shadow-sm transition-all duration-150 hover:bg-inter-navy-light hover:shadow-md active:scale-[0.98] disabled:opacity-50"
       >
         {pending ? "Salvataggio…" : "Salva profilo"}
       </button>

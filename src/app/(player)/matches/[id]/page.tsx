@@ -90,7 +90,7 @@ export default async function MatchDetailPage({
       )}
 
       {match.status === "FINISHED" && (
-        <div className="flex flex-col gap-2 rounded-xl border border-black/10 p-4">
+        <div className="flex flex-col gap-2 rounded-2xl bg-surface shadow-card p-4">
           <h2 className="font-medium text-inter-navy">Risultato ufficiale</h2>
           <p>
             {match.homeScore} - {match.awayScore} — Primo marcatore Inter:{" "}
@@ -100,7 +100,7 @@ export default async function MatchDetailPage({
       )}
 
       {myScore && myPrediction && (
-        <div className="flex flex-col gap-1 rounded-xl border border-black/10 p-4 text-sm">
+        <div className="flex flex-col gap-1 rounded-2xl bg-surface shadow-card p-4 text-sm">
           <h2 className="mb-2 font-medium text-inter-navy">Il tuo pronostico</h2>
           <p>
             {myPrediction.predictedHomeScore}-{myPrediction.predictedAwayScore}, marcatore:{" "}
@@ -110,7 +110,7 @@ export default async function MatchDetailPage({
       )}
 
       {myScore && (
-        <div className="flex flex-col gap-1 rounded-xl border border-black/10 p-4 text-sm">
+        <div className="flex flex-col gap-1 rounded-2xl bg-surface shadow-card p-4 text-sm">
           <h2 className="mb-2 font-medium text-inter-navy">Il tuo punteggio in questa partita</h2>
           <p>
             Risultato indovinato: {myScore.resCorrect ? "sì" : "no"}

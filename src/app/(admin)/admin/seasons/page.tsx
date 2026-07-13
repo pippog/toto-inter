@@ -19,7 +19,7 @@ export default async function AdminSeasonsPage() {
         {seasons.map((s) => (
           <li
             key={s.id}
-            className="flex items-center justify-between rounded-xl border border-black/10 px-4 py-2 text-sm"
+            className="flex items-center justify-between rounded-2xl bg-surface shadow-card px-4 py-2 text-sm"
           >
             <span>{s.label}</span>
             {s.isActive && (
