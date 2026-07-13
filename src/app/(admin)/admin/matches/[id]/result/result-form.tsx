@@ -15,10 +15,14 @@ export function ResultForm({
   matchId,
   match,
   squad,
+  opponent,
+  isHome,
 }: {
   matchId: string;
   match: MatchResultFields;
   squad: string[];
+  opponent: string;
+  isHome: boolean;
 }) {
   const boundAction = setManualResult.bind(null, matchId);
   const [state, action, pending] = useActionState(boundAction, undefined);
@@ -26,32 +30,39 @@ export function ResultForm({
     match.firstScorerKind ?? "NONE",
   );
 
+  const homeLabel = isHome ? "Inter" : opponent;
+  const awayLabel = isHome ? opponent : "Inter";
+
   return (
     <form
       action={action}
       className="flex flex-col gap-4 rounded-xl border border-black/10 p-4"
     >
-      <div className="flex items-center gap-2">
-        <input
-          type="number"
-          name="homeScore"
-          min={0}
-          defaultValue={match.homeScore ?? 0}
-          required
-          className="w-16 rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
-        />
-        <span>-</span>
-        <input
-          type="number"
-          name="awayScore"
-          min={0}
-          defaultValue={match.awayScore ?? 0}
-          required
-          className="w-16 rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
-        />
-        <span className="text-xs text-zinc-500">
-          (risultato ai 90&apos;)
-        </span>
+      <div className="flex items-end gap-2">
+        <label className="flex flex-col gap-1 text-sm">
+          {homeLabel}
+          <input
+            type="number"
+            name="homeScore"
+            min={0}
+            defaultValue={match.homeScore ?? 0}
+            required
+            className="w-16 rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
+          />
+        </label>
+        <span className="pb-1.5">-</span>
+        <label className="flex flex-col gap-1 text-sm">
+          {awayLabel}
+          <input
+            type="number"
+            name="awayScore"
+            min={0}
+            defaultValue={match.awayScore ?? 0}
+            required
+            className="w-16 rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
+          />
+        </label>
+        <span className="pb-1.5 text-xs text-zinc-500">(risultato ai 90&apos;)</span>
       </div>
 
       <fieldset className="flex flex-col gap-2">

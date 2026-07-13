@@ -74,7 +74,13 @@ export default async function MatchDetailPage({
       </div>
 
       {!locked && (
-        <PredictionForm matchId={id} initial={myPrediction ?? null} squad={squadNames} />
+        <PredictionForm
+          matchId={id}
+          initial={myPrediction ?? null}
+          squad={squadNames}
+          opponent={match.opponent}
+          isHome={match.isHome}
+        />
       )}
 
       {locked && !myScore && (

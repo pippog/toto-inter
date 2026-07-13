@@ -15,10 +15,14 @@ export function PredictionForm({
   matchId,
   initial,
   squad,
+  opponent,
+  isHome,
 }: {
   matchId: string;
   initial: Initial;
   squad: string[];
+  opponent: string;
+  isHome: boolean;
 }) {
   const boundAction = submitPrediction.bind(null, matchId);
   const [state, action, pending] = useActionState(boundAction, undefined);
@@ -26,30 +30,39 @@ export function PredictionForm({
     initial?.predictedScorerKind ?? "NONE",
   );
 
+  const homeLabel = isHome ? "Inter" : opponent;
+  const awayLabel = isHome ? opponent : "Inter";
+
   return (
     <form action={action} className="flex flex-col gap-4 rounded-xl border border-black/10 p-4">
       <h2 className="font-medium text-inter-navy">
         {initial ? "Modifica il tuo pronostico" : "Il tuo pronostico"}
       </h2>
 
-      <div className="flex items-center gap-2">
-        <input
-          type="number"
-          name="homeScore"
-          min={0}
-          defaultValue={initial?.predictedHomeScore ?? 0}
-          required
-          className="w-16 rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
-        />
-        <span>-</span>
-        <input
-          type="number"
-          name="awayScore"
-          min={0}
-          defaultValue={initial?.predictedAwayScore ?? 0}
-          required
-          className="w-16 rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
-        />
+      <div className="flex items-end gap-2">
+        <label className="flex flex-col gap-1 text-sm">
+          {homeLabel}
+          <input
+            type="number"
+            name="homeScore"
+            min={0}
+            defaultValue={initial?.predictedHomeScore ?? 0}
+            required
+            className="w-16 rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
+          />
+        </label>
+        <span className="pb-1.5">-</span>
+        <label className="flex flex-col gap-1 text-sm">
+          {awayLabel}
+          <input
+            type="number"
+            name="awayScore"
+            min={0}
+            defaultValue={initial?.predictedAwayScore ?? 0}
+            required
+            className="w-16 rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
+          />
+        </label>
       </div>
 
       <fieldset className="flex flex-col gap-2">
