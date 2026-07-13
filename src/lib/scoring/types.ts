@@ -1,3 +1,5 @@
+import type Decimal from "decimal.js";
+
 export type ScorerKind = "PLAYER_GOAL" | "OWN_GOAL" | "NONE";
 
 export interface OfficialResult {
@@ -21,20 +23,23 @@ export interface StreakState {
   marcatore: number;
 }
 
+// Tutti i punteggi come Decimal, mai number/float: si accumulano frazioni
+// come 1/12 moltiplicate per bonus percentuali, e il motore rigioca
+// l'intera stagione a ogni correzione (vedi piano, sezione hardening).
 export interface MatchScoreResult {
   userId: string;
   resCorrect: boolean;
   marcatoreCorrect: boolean;
-  resPoints: number;
-  marcatorePoints: number;
-  basePoints: number;
-  comboBonus: number;
+  resPoints: Decimal;
+  marcatorePoints: Decimal;
+  basePoints: Decimal;
+  comboBonus: Decimal;
   resStreakLenAfter: number;
   marcatoreStreakLenAfter: number;
-  resStreakBonusPct: number;
-  marcatoreStreakBonusPct: number;
-  streakBonusPoints: number;
-  totalPoints: number;
+  resStreakBonusPct: Decimal;
+  marcatoreStreakBonusPct: Decimal;
+  streakBonusPoints: Decimal;
+  totalPoints: Decimal;
 }
 
 export interface ComputeMatchScoresInput {

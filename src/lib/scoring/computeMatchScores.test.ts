@@ -38,10 +38,10 @@ describe("computeMatchScores", () => {
     const u1 = perPlayer.get("u1")!;
     expect(u1.resCorrect).toBe(true);
     expect(u1.marcatoreCorrect).toBe(false);
-    expect(u1.basePoints).toBeCloseTo(1);
-    expect(u1.comboBonus).toBe(0);
-    expect(u1.streakBonusPoints).toBe(0);
-    expect(u1.totalPoints).toBeCloseTo(1);
+    expect(u1.basePoints.toNumber()).toBeCloseTo(1);
+    expect(u1.comboBonus.toNumber()).toBe(0);
+    expect(u1.streakBonusPoints.toNumber()).toBe(0);
+    expect(u1.totalPoints.toNumber()).toBeCloseTo(1);
   });
 
   it("due giocatori corretti sul risultato, uno anche sul marcatore: split 1/2 + combo solo per il doppio", () => {
@@ -73,23 +73,23 @@ describe("computeMatchScores", () => {
     const u2 = perPlayer.get("u2")!;
 
     // Entrambi indovinano il risultato -> 1/2 a testa.
-    expect(u1.resPoints).toBeCloseTo(0.5);
-    expect(u2.resPoints).toBeCloseTo(0.5);
+    expect(u1.resPoints.toNumber()).toBeCloseTo(0.5);
+    expect(u2.resPoints.toNumber()).toBeCloseTo(0.5);
 
     // Solo u1 indovina il marcatore -> tutto il punto (1/1).
     expect(u1.marcatoreCorrect).toBe(true);
-    expect(u1.marcatorePoints).toBeCloseTo(1);
+    expect(u1.marcatorePoints.toNumber()).toBeCloseTo(1);
     expect(u2.marcatoreCorrect).toBe(false);
-    expect(u2.marcatorePoints).toBe(0);
+    expect(u2.marcatorePoints.toNumber()).toBe(0);
 
     // Combo solo per u1 (doppio corretto): +50% del suo base (0.5+1=1.5).
-    expect(u1.basePoints).toBeCloseTo(1.5);
-    expect(u1.comboBonus).toBeCloseTo(0.75);
-    expect(u1.totalPoints).toBeCloseTo(2.25);
+    expect(u1.basePoints.toNumber()).toBeCloseTo(1.5);
+    expect(u1.comboBonus.toNumber()).toBeCloseTo(0.75);
+    expect(u1.totalPoints.toNumber()).toBeCloseTo(2.25);
 
     // u2 non ha combo.
-    expect(u2.comboBonus).toBe(0);
-    expect(u2.totalPoints).toBeCloseTo(0.5);
+    expect(u2.comboBonus.toNumber()).toBe(0);
+    expect(u2.totalPoints.toNumber()).toBeCloseTo(0.5);
   });
 
   it("nessuno indovina il marcatore: marcatore_points=0 per tutti, niente divisione per zero", () => {
@@ -120,8 +120,8 @@ describe("computeMatchScores", () => {
     for (const userId of ["u1", "u2"]) {
       const result = perPlayer.get(userId)!;
       expect(result.marcatoreCorrect).toBe(false);
-      expect(result.marcatorePoints).toBe(0);
-      expect(Number.isFinite(result.totalPoints)).toBe(true);
+      expect(result.marcatorePoints.toNumber()).toBe(0);
+      expect(Number.isFinite(result.totalPoints.toNumber())).toBe(true);
     }
   });
 
@@ -145,13 +145,13 @@ describe("computeMatchScores", () => {
 
     const u1 = perPlayer.get("u1")!;
     expect(u1.resStreakLenAfter).toBe(4);
-    expect(u1.resStreakBonusPct).toBeCloseTo(1.0);
+    expect(u1.resStreakBonusPct.toNumber()).toBeCloseTo(1.0);
     // Base = 1 (risultato) + 1 (marcatore, unico a indovinare) = 2.
     // Combo (+50%) + streak risultato (+100%) + streak marcatore (0%, primo centro).
-    expect(u1.basePoints).toBeCloseTo(2);
-    expect(u1.comboBonus).toBeCloseTo(1); // 0.5 * 2
-    expect(u1.streakBonusPoints).toBeCloseTo(2); // (1.0 + 0) * 2
-    expect(u1.totalPoints).toBeCloseTo(5); // 2 + 1 + 2
+    expect(u1.basePoints.toNumber()).toBeCloseTo(2);
+    expect(u1.comboBonus.toNumber()).toBeCloseTo(1); // 0.5 * 2
+    expect(u1.streakBonusPoints.toNumber()).toBeCloseTo(2); // (1.0 + 0) * 2
+    expect(u1.totalPoints.toNumber()).toBeCloseTo(5); // 2 + 1 + 2
   });
 
   it("pronostico mancante azzera lo streak anche senza una riga precedente esplicita", () => {
@@ -182,7 +182,7 @@ describe("computeMatchScores", () => {
       priorStreaks: afterMiss,
     });
     expect(perPlayer.get("u1")!.resStreakLenAfter).toBe(1);
-    expect(perPlayer.get("u1")!.resStreakBonusPct).toBe(0);
+    expect(perPlayer.get("u1")!.resStreakBonusPct.toNumber()).toBe(0);
   });
 
   it("autogol e nessun marcatore: un giocatore reale pronosticato contro un autogol ufficiale è sbagliato", () => {
@@ -257,7 +257,9 @@ describe("computeMatchScores", () => {
     });
 
     for (const result of perPlayer.values()) {
-      expect(result.totalPoints).toBeCloseTo(totalPointsFactoredForm(result));
+      expect(result.totalPoints.toNumber()).toBeCloseTo(
+        totalPointsFactoredForm(result).toNumber(),
+      );
     }
   });
 
@@ -282,8 +284,8 @@ describe("computeMatchScores", () => {
     const u1 = perPlayer.get("u1")!;
     const u2 = perPlayer.get("u2")!;
     // u1 è l'unico che ha indovinato -> prende l'intero punto, non 1/2.
-    expect(u1.resPoints).toBeCloseTo(1);
+    expect(u1.resPoints.toNumber()).toBeCloseTo(1);
     expect(u2.resCorrect).toBe(false);
-    expect(u2.totalPoints).toBe(0);
+    expect(u2.totalPoints.toNumber()).toBe(0);
   });
 });
