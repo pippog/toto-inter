@@ -1,5 +1,6 @@
 import { getActiveSeason } from "@/lib/dal";
 import { prisma } from "@/lib/db";
+import { Avatar } from "@/components/avatar";
 
 export default async function LeaderboardPage() {
   const season = await getActiveSeason();
@@ -19,7 +20,13 @@ export default async function LeaderboardPage() {
         (sum, ms) => sum + Number(ms.totalPoints),
         0,
       );
-      return { id: u.id, name: u.name, totalPoints, played: u.matchScores.length };
+      return {
+        id: u.id,
+        name: u.name,
+        avatarUrl: u.avatarUrl,
+        totalPoints,
+        played: u.matchScores.length,
+      };
     })
     .sort((a, b) => b.totalPoints - a.totalPoints);
 
@@ -40,6 +47,7 @@ export default async function LeaderboardPage() {
               >
                 {i + 1}
               </span>
+              <Avatar name={s.name} avatarUrl={s.avatarUrl} size={28} />
               <span>
                 {s.name}{" "}
                 <span className="text-sm text-zinc-500">({s.played} partite)</span>

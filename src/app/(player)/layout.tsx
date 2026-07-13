@@ -9,6 +9,7 @@ export default async function PlayerLayout({ children }: { children: ReactNode }
   return (
     <AppShell
       userName={user.name}
+      avatarUrl={user.avatarUrl}
       isAdmin={user.role === "ADMIN"}
       logoutSlot={<LogoutButton />}
     >

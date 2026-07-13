@@ -9,6 +9,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   return (
     <AppShell
       userName={user.name}
+      avatarUrl={user.avatarUrl}
       isAdmin={user.role === "ADMIN"}
       logoutSlot={<LogoutButton />}
     >

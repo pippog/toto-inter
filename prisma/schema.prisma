@@ -62,6 +62,13 @@ model User {
   inviteExpires  DateTime?
   createdAt      DateTime   @default(now())
 
+  // Identità pubblica del giocatore: name resta l'alias mostrato ovunque
+  // (classifica, pronostici rivelati, sidebar). firstName/lastName sono
+  // privati: visibili solo all'utente stesso e all'admin, mai in classifica.
+  firstName      String?
+  lastName       String?
+  avatarUrl      String?
+
   predictions    Prediction[]
   matchScores    MatchScore[]
   streakStates   PlayerStreakState[]

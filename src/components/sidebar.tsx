@@ -16,6 +16,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
+import { Avatar } from "./avatar";
 
 type NavItem = { href: string; label: string; icon: ComponentType<{ className?: string }> };
 
@@ -63,10 +64,12 @@ function NavLink({
 
 export function Sidebar({
   userName,
+  avatarUrl,
   isAdmin,
   logoutSlot,
 }: {
   userName: string;
+  avatarUrl?: string | null;
   isAdmin: boolean;
   logoutSlot: React.ReactNode;
 }) {
@@ -173,7 +176,10 @@ export function Sidebar({
 
         <div className="border-t border-white/10 px-3 py-4">
           {!collapsed && (
-            <p className="mb-2 truncate px-3 text-xs text-white/50">{userName}</p>
+            <div className="mb-2 flex items-center gap-2 px-3">
+              <Avatar name={userName} avatarUrl={avatarUrl} size={24} />
+              <p className="truncate text-xs text-white/50">{userName}</p>
+            </div>
           )}
           {logoutSlot}
         </div>

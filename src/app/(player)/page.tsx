@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import { Trophy, CalendarDays, ArrowRight } from "lucide-react";
 import { getCurrentUser, getActiveSeason } from "@/lib/dal";
 import { prisma } from "@/lib/db";
+import { Avatar } from "@/components/avatar";
 
 const COMPETITION_LABELS: Record<string, string> = {
   SERIE_A: "Serie A",
@@ -26,6 +27,7 @@ export default async function HomePage() {
     .map((u) => ({
       id: u.id,
       name: u.name,
+      avatarUrl: u.avatarUrl,
       totalPoints: u.matchScores.reduce((sum, ms) => sum + Number(ms.totalPoints), 0),
     }))
     .sort((a, b) => b.totalPoints - a.totalPoints)
@@ -76,6 +78,7 @@ export default async function HomePage() {
                   >
                     {i + 1}
                   </span>
+                  <Avatar name={s.name} avatarUrl={s.avatarUrl} size={20} />
                   {s.name}
                 </span>
                 <span className="font-medium">{s.totalPoints.toFixed(2)} pt</span>
