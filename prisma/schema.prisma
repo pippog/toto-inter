@@ -1,0 +1,184 @@
+// Toto-Inter — schema dati
+// Vedi il piano in .claude/plans per il contesto completo delle regole di gioco.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  PLAYER
+  ADMIN
+}
+
+enum UserStatus {
+  INVITED
+  ACTIVE
+  DISABLED
+}
+
+enum Competition {
+  SERIE_A
+  COPPA_ITALIA
+  CHAMPIONS_LEAGUE
+  EUROPA_LEAGUE
+  FRIENDLY
+  OTHER
+}
+
+enum MatchStatus {
+  SCHEDULED
+  LOCKED
+  FINISHED
+}
+
+enum ResultSource {
+  NONE
+  API
+  MANUAL
+}
+
+// Primo marcatore è sempre relativo all'Inter (vedi piano): PLAYER_GOAL = un
+// giocatore dell'Inter segna, OWN_GOAL = autogol avversario a favore
+// dell'Inter, NONE = l'Inter non segna in quella partita.
+enum ScorerKind {
+  PLAYER_GOAL
+  OWN_GOAL
+  NONE
+}
+
+model User {
+  id             String     @id @default(uuid())
+  name           String
+  email          String     @unique
+  passwordHash   String?
+  role           Role       @default(PLAYER)
+  status         UserStatus @default(INVITED)
+  inviteToken    String?    @unique
+  inviteExpires  DateTime?
+  createdAt      DateTime   @default(now())
+
+  predictions    Prediction[]
+  matchScores    MatchScore[]
+  streakStates   PlayerStreakState[]
+}
+
+model Season {
+  id       String   @id @default(uuid())
+  label    String   @unique
+  isActive Boolean  @default(false)
+
+  matches       Match[]
+  streakStates  PlayerStreakState[]
+}
+
+// Una "giornata" = una partita dell'Inter (qualunque competizione).
+model Match {
+  id                    String        @id @default(uuid())
+  seasonId              String
+  season                Season        @relation(fields: [seasonId], references: [id])
+  competition           Competition
+  opponent              String
+  isHome                Boolean
+  kickoffAt             DateTime
+  predictionDeadlineAt  DateTime
+  status                MatchStatus   @default(SCHEDULED)
+  externalRef           String?       @unique
+  resultSource          ResultSource  @default(NONE)
+
+  // Risultato ufficiale, sempre sui 90 minuti.
+  homeScore             Int?
+  awayScore             Int?
+
+  // Primo marcatore dell'Inter (vedi enum ScorerKind).
+  firstScorerKind       ScorerKind?
+  firstScorerPlayerName String?
+
+  scoringComputedAt     DateTime?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  predictions  Prediction[]
+  matchScores  MatchScore[]
+  syncLogs     SyncLog[]
+
+  @@index([seasonId, kickoffAt])
+}
+
+model Prediction {
+  id                          String      @id @default(uuid())
+  matchId                     String
+  match                       Match       @relation(fields: [matchId], references: [id])
+  userId                      String
+  user                        User        @relation(fields: [userId], references: [id])
+
+  predictedHomeScore          Int
+  predictedAwayScore          Int
+  predictedScorerKind         ScorerKind
+  predictedScorerPlayerName   String?
+
+  submittedAt                 DateTime    @default(now())
+  updatedAt                   DateTime    @updatedAt
+
+  @@unique([matchId, userId])
+}
+
+// Riga persistita del breakdown punti per utente/partita — mai ricalcolata
+// al volo per la visualizzazione (vedi piano, sezione Motore di scoring).
+model MatchScore {
+  id                       String   @id @default(uuid())
+  matchId                  String
+  match                    Match    @relation(fields: [matchId], references: [id])
+  userId                   String
+  user                     User     @relation(fields: [userId], references: [id])
+
+  resCorrect               Boolean
+  marcatoreCorrect         Boolean
+
+  resPoints                Decimal  @db.Decimal(10, 6)
+  marcatorePoints          Decimal  @db.Decimal(10, 6)
+  basePoints               Decimal  @db.Decimal(10, 6)
+  comboBonus               Decimal  @db.Decimal(10, 6)
+
+  resStreakLenAfter        Int
+  marcatoreStreakLenAfter  Int
+  resStreakBonusPct        Decimal  @db.Decimal(5, 4)
+  marcatoreStreakBonusPct  Decimal  @db.Decimal(5, 4)
+  streakBonusPoints        Decimal  @db.Decimal(10, 6)
+
+  totalPoints              Decimal  @db.Decimal(10, 6)
+
+  computedAt               DateTime @default(now())
+
+  @@unique([matchId, userId])
+}
+
+// Stato corrente dello streak per utente/stagione — persistito per evitare
+// di rigiocare l'intera stagione a ogni lettura (vedi piano).
+model PlayerStreakState {
+  userId                  String
+  user                    User     @relation(fields: [userId], references: [id])
+  seasonId                String
+  season                  Season   @relation(fields: [seasonId], references: [id])
+
+  currentResStreak        Int      @default(0)
+  currentMarcatoreStreak  Int      @default(0)
+  lastMatchIdApplied      String?
+
+  @@id([userId, seasonId])
+}
+
+model SyncLog {
+  id              String   @id @default(uuid())
+  matchId         String?
+  match           Match?   @relation(fields: [matchId], references: [id])
+  provider        String
+  requestSummary  String?
+  responseSummary String?
+  error           String?
+  createdAt       DateTime @default(now())
+}
