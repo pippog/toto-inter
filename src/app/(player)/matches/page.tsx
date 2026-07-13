@@ -2,7 +2,6 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { getCurrentUser, getActiveSeason } from "@/lib/dal";
 import { prisma } from "@/lib/db";
-import { LogoutButton } from "@/app/(auth)/logout-button";
 
 const COMPETITION_LABELS: Record<string, string> = {
   SERIE_A: "Serie A",
@@ -11,6 +10,13 @@ const COMPETITION_LABELS: Record<string, string> = {
   EUROPA_LEAGUE: "Europa League",
   FRIENDLY: "Amichevole",
   OTHER: "Altro",
+};
+
+const STATUS_STYLES: Record<string, string> = {
+  Conclusa: "bg-zinc-100 text-zinc-600",
+  "Pronostici chiusi": "bg-zinc-100 text-zinc-600",
+  Pronosticato: "bg-inter-navy/10 text-inter-navy",
+  "Da pronosticare": "bg-inter-gold/20 text-inter-navy-dark",
 };
 
 export default async function MatchesPage() {
@@ -31,19 +37,7 @@ export default async function MatchesPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Ciao, {user.name}</h1>
-        <LogoutButton />
-      </div>
-
-      <div className="flex gap-4 text-sm text-zinc-600 dark:text-zinc-400">
-        <Link href="/leaderboard" className="underline">
-          Classifica
-        </Link>
-        <Link href="/profile" className="underline">
-          Profilo
-        </Link>
-      </div>
+      <h1 className="text-2xl font-semibold text-inter-navy">Partite — {season.label}</h1>
 
       <ul className="flex flex-col gap-3">
         {matches.map((match) => {
@@ -62,11 +56,11 @@ export default async function MatchesPage() {
             <li key={match.id}>
               <Link
                 href={`/matches/${match.id}`}
-                className="flex items-center justify-between rounded border border-black/10 p-4 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/5"
+                className="flex items-center justify-between rounded-xl border border-black/10 p-4 transition-colors hover:border-inter-navy/30 hover:bg-zinc-50"
               >
                 <div>
                   <div className="font-medium">{label}</div>
-                  <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                  <div className="text-sm text-zinc-500">
                     {COMPETITION_LABELS[match.competition] ?? match.competition} —{" "}
                     {match.kickoffAt.toLocaleString("it-IT", {
                       dateStyle: "medium",
@@ -74,15 +68,15 @@ export default async function MatchesPage() {
                     })}
                   </div>
                 </div>
-                <span className="text-sm">{status}</span>
+                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[status]}`}>
+                  {status}
+                </span>
               </Link>
             </li>
           );
         })}
         {matches.length === 0 && (
-          <li className="text-sm text-zinc-600 dark:text-zinc-400">
-            Nessuna partita ancora in calendario.
-          </li>
+          <li className="text-sm text-zinc-500">Nessuna partita ancora in calendario.</li>
         )}
       </ul>
     </div>

@@ -51,10 +51,10 @@ export default async function MatchDetailPage({
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-8">
       <div>
-        <h1 className="text-xl font-semibold">
+        <h1 className="text-xl font-semibold text-inter-navy">
           Inter {match.isHome ? "-" : "@"} {match.opponent}
         </h1>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-sm text-zinc-500">
           {COMPETITION_LABELS[match.competition] ?? match.competition} —{" "}
           {match.kickoffAt.toLocaleString("it-IT", {
             dateStyle: "medium",
@@ -68,14 +68,14 @@ export default async function MatchDetailPage({
       )}
 
       {locked && !myScore && (
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-sm text-zinc-500">
           I pronostici sono chiusi. In attesa del risultato ufficiale.
         </p>
       )}
 
       {match.status === "FINISHED" && (
-        <div className="flex flex-col gap-2 rounded border border-black/10 p-4 dark:border-white/10">
-          <h2 className="font-medium">Risultato ufficiale</h2>
+        <div className="flex flex-col gap-2 rounded-xl border border-black/10 p-4">
+          <h2 className="font-medium text-inter-navy">Risultato ufficiale</h2>
           <p>
             {match.homeScore} - {match.awayScore} — Primo marcatore Inter:{" "}
             {scorerLabel(match.firstScorerKind!, match.firstScorerPlayerName)}
@@ -84,8 +84,8 @@ export default async function MatchDetailPage({
       )}
 
       {myScore && myPrediction && (
-        <div className="flex flex-col gap-1 rounded border border-black/10 p-4 text-sm dark:border-white/10">
-          <h2 className="mb-2 font-medium">Il tuo pronostico</h2>
+        <div className="flex flex-col gap-1 rounded-xl border border-black/10 p-4 text-sm">
+          <h2 className="mb-2 font-medium text-inter-navy">Il tuo pronostico</h2>
           <p>
             {myPrediction.predictedHomeScore}-{myPrediction.predictedAwayScore}, marcatore:{" "}
             {scorerLabel(myPrediction.predictedScorerKind, myPrediction.predictedScorerPlayerName)}
@@ -94,8 +94,8 @@ export default async function MatchDetailPage({
       )}
 
       {myScore && (
-        <div className="flex flex-col gap-1 rounded border border-black/10 p-4 text-sm dark:border-white/10">
-          <h2 className="mb-2 font-medium">Il tuo punteggio in questa partita</h2>
+        <div className="flex flex-col gap-1 rounded-xl border border-black/10 p-4 text-sm">
+          <h2 className="mb-2 font-medium text-inter-navy">Il tuo punteggio in questa partita</h2>
           <p>
             Risultato indovinato: {myScore.resCorrect ? "sì" : "no"}
             {myScore.resCorrect && ` (${wRes} su ${totalScored} hanno indovinato, quindi valeva 1/${wRes})`}
@@ -113,7 +113,7 @@ export default async function MatchDetailPage({
             Streak marcatore: {myScore.marcatoreStreakLenAfter} ({(Number(myScore.marcatoreStreakBonusPct) * 100).toFixed(0)}%)
           </p>
           <p>Bonus streak: {Number(myScore.streakBonusPoints).toFixed(3)} pt</p>
-          <p className="mt-2 font-semibold">
+          <p className="mt-2 font-semibold text-inter-navy">
             Totale: {Number(myScore.totalPoints).toFixed(3)} pt
           </p>
         </div>
@@ -121,7 +121,7 @@ export default async function MatchDetailPage({
 
       {locked && (
         <div className="flex flex-col gap-2">
-          <h2 className="font-medium">Pronostici {locked ? "" : "(nascosti fino al deadline)"}</h2>
+          <h2 className="font-medium text-inter-navy">Pronostici {locked ? "" : "(nascosti fino al deadline)"}</h2>
           <ul className="flex flex-col gap-1 text-sm">
             {visiblePredictions.map((p) => (
               <li key={p.id}>

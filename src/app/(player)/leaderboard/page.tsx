@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getActiveSeason } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 
@@ -26,27 +25,32 @@ export default async function LeaderboardPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col gap-6 p-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Classifica — {season.label}</h1>
-        <Link href="/matches" className="text-sm underline">
-          Partite
-        </Link>
-      </div>
+      <h1 className="text-2xl font-semibold text-inter-navy">Classifica — {season.label}</h1>
       <ol className="flex flex-col gap-2">
         {standings.map((s, i) => (
           <li
             key={s.id}
-            className="flex items-center justify-between rounded border border-black/10 px-4 py-2 dark:border-white/10"
+            className="flex items-center justify-between rounded-xl border border-black/10 px-4 py-3"
           >
-            <span>
-              {i + 1}. {s.name}{" "}
-              <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                ({s.played} partite)
+            <span className="flex items-center gap-3">
+              <span
+                className={`flex size-7 items-center justify-center rounded-full text-sm font-semibold ${
+                  i === 0 ? "bg-inter-gold text-inter-navy-dark" : "bg-zinc-100 text-zinc-600"
+                }`}
+              >
+                {i + 1}
+              </span>
+              <span>
+                {s.name}{" "}
+                <span className="text-sm text-zinc-500">({s.played} partite)</span>
               </span>
             </span>
-            <span className="font-semibold">{s.totalPoints.toFixed(2)} pt</span>
+            <span className="font-semibold text-inter-navy">{s.totalPoints.toFixed(2)} pt</span>
           </li>
         ))}
+        {standings.length === 0 && (
+          <li className="text-sm text-zinc-500">Nessun punteggio ancora registrato.</li>
+        )}
       </ol>
     </div>
   );

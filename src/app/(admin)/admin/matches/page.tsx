@@ -12,7 +12,7 @@ export default async function AdminMatchesPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-8">
-      <h1 className="text-2xl font-semibold">Gestione partite</h1>
+      <h1 className="text-2xl font-semibold text-inter-navy">Gestione partite</h1>
 
       <CreateMatchForm />
 
@@ -21,7 +21,7 @@ export default async function AdminMatchesPage() {
           <li key={m.id}>
             <Link
               href={`/admin/matches/${m.id}/result`}
-              className="flex items-center justify-between rounded border border-black/10 p-3 hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/5"
+              className="flex items-center justify-between rounded-xl border border-black/10 p-3 transition-colors hover:border-inter-navy/30 hover:bg-zinc-50"
             >
               <span>
                 Inter {m.isHome ? "-" : "@"} {m.opponent} —{" "}
@@ -30,7 +30,7 @@ export default async function AdminMatchesPage() {
                   timeStyle: "short",
                 })}
               </span>
-              <span className="text-sm">
+              <span className="text-sm text-zinc-500">
                 {m.status} / {m.resultSource}
               </span>
             </Link>

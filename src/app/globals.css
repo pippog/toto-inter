@@ -2,19 +2,36 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #111318;
+
+  /* Palette Inter: navy nerazzurro come colore di brand primario, nero per
+     contrasto/testo forte, oro per accenti puntuali (richiama lo scudetto).
+     Lo sfondo resta bianco/chiaro per esplicita richiesta: i colori Inter
+     vivono nella sidebar e negli accenti, non nel campo principale. */
+  --inter-navy: #0c1b4d;
+  --inter-navy-light: #16295f;
+  --inter-navy-dark: #081334;
+  --inter-black: #0a0a0a;
+  --inter-gold: #d4a93e;
+  --inter-gold-light: #e6c878;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-inter-navy: var(--inter-navy);
+  --color-inter-navy-light: var(--inter-navy-light);
+  --color-inter-navy-dark: var(--inter-navy-dark);
+  --color-inter-black: var(--inter-black);
+  --color-inter-gold: var(--inter-gold);
+  --color-inter-gold-light: var(--inter-gold-light);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #0b0d12;
     --foreground: #ededed;
   }
 }
@@ -22,5 +39,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }

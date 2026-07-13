@@ -1,3 +1,4 @@
+import { LogOut } from "lucide-react";
 import { signOut } from "@/auth";
 
 export function LogoutButton() {
@@ -10,8 +11,9 @@ export function LogoutButton() {
     >
       <button
         type="submit"
-        className="rounded border border-black/10 px-4 py-2 text-sm dark:border-white/10"
+        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/70 transition-colors hover:bg-white/10 hover:text-white"
       >
+        <LogOut className="size-[18px] shrink-0" />
         Esci
       </button>
     </form>

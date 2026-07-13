@@ -7,8 +7,8 @@ export default async function ProfilePage() {
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-6 p-8">
       <div>
-        <h1 className="text-2xl font-semibold">{user.name}</h1>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">{user.email}</p>
+        <h1 className="text-2xl font-semibold text-inter-navy">{user.name}</h1>
+        <p className="text-sm text-zinc-500">{user.email}</p>
       </div>
 
       <ChangePasswordForm />

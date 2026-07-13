@@ -34,7 +34,7 @@ export const getCurrentUser = cache(async () => {
 export const requireAdmin = cache(async () => {
   const user = await getCurrentUser();
   if (user.role !== "ADMIN") {
-    redirect("/matches");
+    redirect("/");
   }
   return user;
 });

@@ -18,16 +18,16 @@ export function CreateMatchForm() {
   return (
     <form
       action={action}
-      className="flex flex-col gap-3 rounded border border-black/10 p-4 dark:border-white/10"
+      className="flex flex-col gap-3 rounded-xl border border-black/10 p-4"
     >
-      <h2 className="font-medium">Nuova partita</h2>
+      <h2 className="font-medium text-inter-navy">Nuova partita</h2>
 
       <label className="flex flex-col gap-1 text-sm">
         Avversario
         <input
           name="opponent"
           required
-          className="rounded border border-black/10 bg-transparent px-2 py-1 dark:border-white/10"
+          className="rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
         />
       </label>
 
@@ -40,7 +40,7 @@ export function CreateMatchForm() {
         Competizione
         <select
           name="competition"
-          className="rounded border border-black/10 bg-transparent px-2 py-1 dark:border-white/10"
+          className="rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
         >
           {COMPETITIONS.map(([value, label]) => (
             <option key={value} value={value}>
@@ -56,10 +56,10 @@ export function CreateMatchForm() {
           type="datetime-local"
           name="kickoffAt"
           required
-          className="rounded border border-black/10 bg-transparent px-2 py-1 dark:border-white/10"
+          className="rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
         />
       </label>
-      <p className="text-xs text-zinc-600 dark:text-zinc-400">
+      <p className="text-xs text-zinc-500">
         Il termine per i pronostici verrà impostato automaticamente a 5
         minuti prima del calcio d&apos;inizio.
       </p>
@@ -69,7 +69,7 @@ export function CreateMatchForm() {
       <button
         type="submit"
         disabled={pending}
-        className="rounded bg-foreground px-4 py-2 text-background disabled:opacity-50"
+        className="rounded-lg bg-inter-navy px-4 py-2 text-white transition-colors hover:bg-inter-navy-light disabled:opacity-50"
       >
         {pending ? "Creazione…" : "Crea partita"}
       </button>

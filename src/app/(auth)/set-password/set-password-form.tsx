@@ -10,7 +10,7 @@ export function SetPasswordForm({ token }: { token: string }) {
     <form action={action} className="flex flex-col gap-4">
       <input type="hidden" name="token" value={token} />
       <div className="flex flex-col gap-1">
-        <label htmlFor="password" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="password" className="text-sm text-zinc-500">
           Password
         </label>
         <input
@@ -19,11 +19,11 @@ export function SetPasswordForm({ token }: { token: string }) {
           type="password"
           required
           minLength={8}
-          className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+          className="rounded-lg border border-black/10 bg-transparent px-3 py-2 focus:border-inter-navy focus:outline-none"
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor="confirmPassword" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor="confirmPassword" className="text-sm text-zinc-500">
           Conferma password
         </label>
         <input
@@ -32,14 +32,14 @@ export function SetPasswordForm({ token }: { token: string }) {
           type="password"
           required
           minLength={8}
-          className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+          className="rounded-lg border border-black/10 bg-transparent px-3 py-2 focus:border-inter-navy focus:outline-none"
         />
       </div>
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 rounded bg-foreground px-4 py-2 text-background disabled:opacity-50"
+        className="mt-2 rounded-lg bg-inter-navy px-4 py-2 text-white transition-colors hover:bg-inter-navy-light disabled:opacity-50"
       >
         {pending ? "Attivazione…" : "Attiva account"}
       </button>

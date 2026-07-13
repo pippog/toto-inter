@@ -14,13 +14,13 @@ export function UserRow({ user, isSelf }: { user: User; isSelf: boolean }) {
   const [isPending, startTransition] = useTransition();
 
   return (
-    <li className="flex items-center justify-between gap-3 rounded border border-black/10 px-3 py-2 text-sm dark:border-white/10">
+    <li className="flex items-center justify-between gap-3 rounded-xl border border-black/10 px-3 py-2 text-sm">
       <div className="flex flex-col">
         <span className="font-medium">
           {user.name}
           {isSelf && <span className="ml-2 text-xs text-zinc-500">(tu)</span>}
         </span>
-        <span className="text-xs text-zinc-600 dark:text-zinc-400">
+        <span className="text-xs text-zinc-500">
           {user.email} · {STATUS_LABEL[user.status]} ·{" "}
           {user.role === "ADMIN" ? "Admin" : "Giocatore"}
         </span>
@@ -39,7 +39,7 @@ export function UserRow({ user, isSelf }: { user: User; isSelf: boolean }) {
                 ),
               )
             }
-            className="rounded border border-black/10 px-2 py-1 text-xs disabled:opacity-50 dark:border-white/10"
+            className="rounded-lg border border-black/10 px-2 py-1 text-xs transition-colors hover:bg-zinc-50 disabled:opacity-50"
           >
             {user.status === "DISABLED" ? "Riabilita" : "Disabilita"}
           </button>
@@ -54,7 +54,7 @@ export function UserRow({ user, isSelf }: { user: User; isSelf: boolean }) {
                 ),
               )
             }
-            className="rounded border border-black/10 px-2 py-1 text-xs disabled:opacity-50 dark:border-white/10"
+            className="rounded-lg border border-black/10 px-2 py-1 text-xs transition-colors hover:bg-zinc-50 disabled:opacity-50"
           >
             {user.role === "ADMIN" ? "Rimuovi admin" : "Rendi admin"}
           </button>

@@ -26,7 +26,7 @@ export function ResultForm({
   return (
     <form
       action={action}
-      className="flex flex-col gap-4 rounded border border-black/10 p-4 dark:border-white/10"
+      className="flex flex-col gap-4 rounded-xl border border-black/10 p-4"
     >
       <div className="flex items-center gap-2">
         <input
@@ -35,7 +35,7 @@ export function ResultForm({
           min={0}
           defaultValue={match.homeScore ?? 0}
           required
-          className="w-16 rounded border border-black/10 bg-transparent px-2 py-1 dark:border-white/10"
+          className="w-16 rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
         />
         <span>-</span>
         <input
@@ -44,15 +44,15 @@ export function ResultForm({
           min={0}
           defaultValue={match.awayScore ?? 0}
           required
-          className="w-16 rounded border border-black/10 bg-transparent px-2 py-1 dark:border-white/10"
+          className="w-16 rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
         />
-        <span className="text-xs text-zinc-600 dark:text-zinc-400">
+        <span className="text-xs text-zinc-500">
           (risultato ai 90&apos;)
         </span>
       </div>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-sm text-zinc-600 dark:text-zinc-400">
+        <legend className="text-sm text-zinc-500">
           Primo marcatore dell&apos;Inter
         </legend>
         <label className="flex items-center gap-2">
@@ -89,7 +89,7 @@ export function ResultForm({
             name="scorerPlayerName"
             defaultValue={match.firstScorerPlayerName ?? ""}
             disabled={scorerKind !== "PLAYER_GOAL"}
-            className="rounded border border-black/10 bg-transparent px-2 py-1 disabled:opacity-50 dark:border-white/10"
+            className="rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none disabled:opacity-50"
           />
         </label>
       </fieldset>
@@ -99,7 +99,7 @@ export function ResultForm({
       <button
         type="submit"
         disabled={pending}
-        className="rounded bg-foreground px-4 py-2 text-background disabled:opacity-50"
+        className="rounded-lg bg-inter-navy px-4 py-2 text-white transition-colors hover:bg-inter-navy-light disabled:opacity-50"
       >
         {pending ? "Salvataggio…" : "Salva risultato e ricalcola punteggi"}
       </button>
