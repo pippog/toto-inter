@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Users,
   CalendarRange,
+  BookOpen,
   Menu,
   X,
   ChevronsLeft,
@@ -24,6 +25,7 @@ const PLAYER_NAV: NavItem[] = [
   { href: "/", label: "Home", icon: Home },
   { href: "/matches", label: "Partite", icon: CalendarDays },
   { href: "/leaderboard", label: "Classifica", icon: Trophy },
+  { href: "/regolamento", label: "Regolamento", icon: BookOpen },
   { href: "/profile", label: "Profilo", icon: User },
 ];
 
