@@ -40,6 +40,16 @@ export default async function MatchDetailPage({
   const visiblePredictions = await getVisiblePredictions(id);
   const myPrediction = visiblePredictions.find((p) => p.userId === user.id);
 
+  const squadNames = locked
+    ? []
+    : (
+        await prisma.player.findMany({
+          where: { active: true },
+          orderBy: { name: "asc" },
+          select: { name: true },
+        })
+      ).map((p) => p.name);
+
   const allScores = match.status === "FINISHED"
     ? await prisma.matchScore.findMany({ where: { matchId: id } })
     : [];
@@ -64,7 +74,7 @@ export default async function MatchDetailPage({
       </div>
 
       {!locked && (
-        <PredictionForm matchId={id} initial={myPrediction ?? null} />
+        <PredictionForm matchId={id} initial={myPrediction ?? null} squad={squadNames} />
       )}
 
       {locked && !myScore && (

@@ -16,10 +16,16 @@ export interface FixtureResult {
   firstScorerPlayerName: string | null;
 }
 
+export interface RawSquadPlayer {
+  externalRef: string;
+  name: string;
+}
+
 // Interfaccia astratta (vedi piano): zero dipendenze da un fornitore
 // specifico, cosi il provider e sostituibile con una riga di config se la
 // free tier di API-Football risultasse insufficiente in futuro.
 export interface FootballDataProvider {
   findUpcomingFixtures(teamId: number, daysAhead: number): Promise<RawFixture[]>;
   getFixtureResult(fixtureId: string, teamId: number): Promise<FixtureResult>;
+  getSquad(teamId: number): Promise<RawSquadPlayer[]>;
 }

@@ -1,7 +1,7 @@
 import "server-only";
 import { mapLeagueToCompetition } from "./competitionMap";
 import { deriveMatchResult, type ApiFixture, type ApiGoalEvent } from "./deriveResult";
-import type { FixtureResult, FootballDataProvider, RawFixture } from "./types";
+import type { FixtureResult, FootballDataProvider, RawFixture, RawSquadPlayer } from "./types";
 
 export const INTER_TEAM_ID = 505;
 
@@ -98,5 +98,14 @@ export const apiFootballProvider: FootballDataProvider = {
     }
 
     return deriveMatchResult(fixture, events, teamId);
+  },
+
+  async getSquad(teamId): Promise<RawSquadPlayer[]> {
+    const response = (await apiGet(`/players/squads?team=${teamId}`)) as Array<{
+      players: Array<{ id: number; name: string }>;
+    }>;
+
+    const squad = response[0]?.players ?? [];
+    return squad.map((p) => ({ externalRef: String(p.id), name: p.name }));
   },
 };

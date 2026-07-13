@@ -189,3 +189,16 @@ model SyncLog {
   error           String?
   createdAt       DateTime @default(now())
 }
+
+// Rosa Inter sincronizzata da API-Football (/players/squads), per popolare
+// la tendina marcatore nel form pronostico/risultato. Il nome resta
+// comunque salvato come stringa libera in Prediction/Match (nessuna FK):
+// se un giocatore lascia la rosa, active passa a false e sparisce dalla
+// tendina ma i pronostici già fatti restano intatti.
+model Player {
+  id          String   @id @default(uuid())
+  externalRef String   @unique
+  name        String
+  active      Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+}

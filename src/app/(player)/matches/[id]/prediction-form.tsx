@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { ScorerPlayerField } from "@/components/scorer-player-field";
 import { submitPrediction } from "./actions";
 
 type Initial = {
@@ -13,9 +14,11 @@ type Initial = {
 export function PredictionForm({
   matchId,
   initial,
+  squad,
 }: {
   matchId: string;
   initial: Initial;
+  squad: string[];
 }) {
   const boundAction = submitPrediction.bind(null, matchId);
   const [state, action, pending] = useActionState(boundAction, undefined);
@@ -82,12 +85,10 @@ export function PredictionForm({
             onChange={() => setScorerKind("PLAYER_GOAL")}
           />
           Un giocatore dell&apos;Inter:
-          <input
-            type="text"
-            name="scorerPlayerName"
-            defaultValue={initial?.predictedScorerPlayerName ?? ""}
+          <ScorerPlayerField
+            squad={squad}
+            initialName={initial?.predictedScorerPlayerName ?? null}
             disabled={scorerKind !== "PLAYER_GOAL"}
-            className="rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none disabled:opacity-50"
           />
         </label>
       </fieldset>
