@@ -40,6 +40,9 @@ export default async function MatchesPage() {
         <Link href="/leaderboard" className="underline">
           Classifica
         </Link>
+        <Link href="/profile" className="underline">
+          Profilo
+        </Link>
       </div>
 
       <ul className="flex flex-col gap-3">
