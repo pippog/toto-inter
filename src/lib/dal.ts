@@ -38,3 +38,32 @@ export const requireAdmin = cache(async () => {
   }
   return user;
 });
+
+export const getActiveSeason = cache(async () => {
+  return prisma.season.findFirstOrThrow({ where: { isActive: true } });
+});
+
+// Regola di riservatezza (vedi piano): prima del deadline un utente vede
+// solo il proprio pronostico, mai quelli altrui — indipendentemente dal
+// ruolo (anche un admin che gioca non deve poter sbirciare in anticipo).
+// Dopo il deadline tutti i pronostici di quella partita diventano visibili
+// a chiunque. Centralizzare qui questo controllo evita di doverlo
+// reimplementare (e rischiare di dimenticarlo) in più pagine/azioni.
+export const getVisiblePredictions = cache(async (matchId: string) => {
+  const user = await getCurrentUser();
+  const match = await prisma.match.findUniqueOrThrow({ where: { id: matchId } });
+  const revealed = Date.now() >= match.predictionDeadlineAt.getTime();
+
+  if (revealed) {
+    return prisma.prediction.findMany({
+      where: { matchId },
+      include: { user: { select: { id: true, name: true } } },
+      orderBy: { user: { name: "asc" } },
+    });
+  }
+
+  return prisma.prediction.findMany({
+    where: { matchId, userId: user.id },
+    include: { user: { select: { id: true, name: true } } },
+  });
+});

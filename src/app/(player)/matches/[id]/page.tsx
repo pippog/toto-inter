@@ -1,0 +1,114 @@
+import { notFound } from "next/navigation";
+import { getCurrentUser, getVisiblePredictions } from "@/lib/dal";
+import { prisma } from "@/lib/db";
+import { PredictionForm } from "./prediction-form";
+
+const COMPETITION_LABELS: Record<string, string> = {
+  SERIE_A: "Serie A",
+  COPPA_ITALIA: "Coppa Italia",
+  CHAMPIONS_LEAGUE: "Champions League",
+  EUROPA_LEAGUE: "Europa League",
+  FRIENDLY: "Amichevole",
+  OTHER: "Altro",
+};
+
+const SCORER_LABELS: Record<string, string> = {
+  PLAYER_GOAL: "Giocatore",
+  OWN_GOAL: "Autogol (a favore dell'Inter)",
+  NONE: "Nessun marcatore",
+};
+
+function scorerLabel(kind: string, playerName: string | null) {
+  if (kind === "PLAYER_GOAL") return playerName ?? "Giocatore";
+  return SCORER_LABELS[kind] ?? kind;
+}
+
+export default async function MatchDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const user = await getCurrentUser();
+  const match = await prisma.match.findUnique({ where: { id } });
+  if (!match) notFound();
+
+  const locked = Date.now() >= match.predictionDeadlineAt.getTime();
+  const visiblePredictions = await getVisiblePredictions(id);
+  const myPrediction = visiblePredictions.find((p) => p.userId === user.id);
+
+  const myScore = match.status === "FINISHED"
+    ? await prisma.matchScore.findUnique({
+        where: { matchId_userId: { matchId: id, userId: user.id } },
+      })
+    : null;
+
+  return (
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-8">
+      <div>
+        <h1 className="text-xl font-semibold">
+          Inter {match.isHome ? "-" : "@"} {match.opponent}
+        </h1>
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          {COMPETITION_LABELS[match.competition] ?? match.competition} —{" "}
+          {match.kickoffAt.toLocaleString("it-IT", {
+            dateStyle: "medium",
+            timeStyle: "short",
+          })}
+        </p>
+      </div>
+
+      {!locked && (
+        <PredictionForm matchId={id} initial={myPrediction ?? null} />
+      )}
+
+      {locked && !myScore && (
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          I pronostici sono chiusi. In attesa del risultato ufficiale.
+        </p>
+      )}
+
+      {match.status === "FINISHED" && (
+        <div className="flex flex-col gap-2 rounded border border-black/10 p-4 dark:border-white/10">
+          <h2 className="font-medium">Risultato ufficiale</h2>
+          <p>
+            {match.homeScore} - {match.awayScore} — Primo marcatore Inter:{" "}
+            {scorerLabel(match.firstScorerKind!, match.firstScorerPlayerName)}
+          </p>
+        </div>
+      )}
+
+      {myScore && (
+        <div className="flex flex-col gap-1 rounded border border-black/10 p-4 text-sm dark:border-white/10">
+          <h2 className="mb-2 font-medium">Il tuo punteggio in questa partita</h2>
+          <p>Risultato indovinato: {myScore.resCorrect ? "sì" : "no"} ({Number(myScore.resPoints).toFixed(3)} pt)</p>
+          <p>Marcatore indovinato: {myScore.marcatoreCorrect ? "sì" : "no"} ({Number(myScore.marcatorePoints).toFixed(3)} pt)</p>
+          <p>Base: {Number(myScore.basePoints).toFixed(3)} pt</p>
+          <p>Bonus combo: {Number(myScore.comboBonus).toFixed(3)} pt</p>
+          <p>
+            Streak risultato: {myScore.resStreakLenAfter} ({(Number(myScore.resStreakBonusPct) * 100).toFixed(0)}%) —
+            Streak marcatore: {myScore.marcatoreStreakLenAfter} ({(Number(myScore.marcatoreStreakBonusPct) * 100).toFixed(0)}%)
+          </p>
+          <p>Bonus streak: {Number(myScore.streakBonusPoints).toFixed(3)} pt</p>
+          <p className="mt-2 font-semibold">
+            Totale: {Number(myScore.totalPoints).toFixed(3)} pt
+          </p>
+        </div>
+      )}
+
+      {locked && (
+        <div className="flex flex-col gap-2">
+          <h2 className="font-medium">Pronostici {locked ? "" : "(nascosti fino al deadline)"}</h2>
+          <ul className="flex flex-col gap-1 text-sm">
+            {visiblePredictions.map((p) => (
+              <li key={p.id}>
+                {p.user.name}: {p.predictedHomeScore}-{p.predictedAwayScore}, marcatore:{" "}
+                {scorerLabel(p.predictedScorerKind, p.predictedScorerPlayerName)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
