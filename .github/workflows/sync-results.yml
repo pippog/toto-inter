@@ -1,0 +1,18 @@
+name: Sync match results
+
+on:
+  schedule:
+    # Vercel Hobby permette cron nativi solo 1 volta/giorno: questo workflow
+    # gira ogni ora al posto suo per il solo aggiornamento risultati
+    # (la scoperta prossime partite resta sul cron Vercel, 1 volta/giorno).
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call sync-results endpoint
+        run: |
+          curl -sf -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://amaralgame.vercel.app/api/cron/sync-results
