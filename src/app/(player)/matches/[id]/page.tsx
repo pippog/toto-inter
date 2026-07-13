@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { getCurrentUser, getVisiblePredictions } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { PredictionForm } from "./prediction-form";
@@ -33,15 +34,19 @@ export default async function MatchDetailPage({
   const match = await prisma.match.findUnique({ where: { id } });
   if (!match) notFound();
 
+  await connection();
+  // eslint-disable-next-line react-hooks/purity -- il rule non riconosce connection() come guardia: sopra forza la valutazione a request time.
   const locked = Date.now() >= match.predictionDeadlineAt.getTime();
   const visiblePredictions = await getVisiblePredictions(id);
   const myPrediction = visiblePredictions.find((p) => p.userId === user.id);
 
-  const myScore = match.status === "FINISHED"
-    ? await prisma.matchScore.findUnique({
-        where: { matchId_userId: { matchId: id, userId: user.id } },
-      })
-    : null;
+  const allScores = match.status === "FINISHED"
+    ? await prisma.matchScore.findMany({ where: { matchId: id } })
+    : [];
+  const myScore = allScores.find((s) => s.userId === user.id) ?? null;
+  const wRes = allScores.filter((s) => s.resCorrect).length;
+  const wMarcatore = allScores.filter((s) => s.marcatoreCorrect).length;
+  const totalScored = allScores.length;
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-8">
@@ -78,11 +83,29 @@ export default async function MatchDetailPage({
         </div>
       )}
 
+      {myScore && myPrediction && (
+        <div className="flex flex-col gap-1 rounded border border-black/10 p-4 text-sm dark:border-white/10">
+          <h2 className="mb-2 font-medium">Il tuo pronostico</h2>
+          <p>
+            {myPrediction.predictedHomeScore}-{myPrediction.predictedAwayScore}, marcatore:{" "}
+            {scorerLabel(myPrediction.predictedScorerKind, myPrediction.predictedScorerPlayerName)}
+          </p>
+        </div>
+      )}
+
       {myScore && (
         <div className="flex flex-col gap-1 rounded border border-black/10 p-4 text-sm dark:border-white/10">
           <h2 className="mb-2 font-medium">Il tuo punteggio in questa partita</h2>
-          <p>Risultato indovinato: {myScore.resCorrect ? "sì" : "no"} ({Number(myScore.resPoints).toFixed(3)} pt)</p>
-          <p>Marcatore indovinato: {myScore.marcatoreCorrect ? "sì" : "no"} ({Number(myScore.marcatorePoints).toFixed(3)} pt)</p>
+          <p>
+            Risultato indovinato: {myScore.resCorrect ? "sì" : "no"}
+            {myScore.resCorrect && ` (${wRes} su ${totalScored} hanno indovinato, quindi valeva 1/${wRes})`}
+            {" "}— {Number(myScore.resPoints).toFixed(3)} pt
+          </p>
+          <p>
+            Marcatore indovinato: {myScore.marcatoreCorrect ? "sì" : "no"}
+            {myScore.marcatoreCorrect && ` (${wMarcatore} su ${totalScored} hanno indovinato, quindi valeva 1/${wMarcatore})`}
+            {" "}— {Number(myScore.marcatorePoints).toFixed(3)} pt
+          </p>
           <p>Base: {Number(myScore.basePoints).toFixed(3)} pt</p>
           <p>Bonus combo: {Number(myScore.comboBonus).toFixed(3)} pt</p>
           <p>

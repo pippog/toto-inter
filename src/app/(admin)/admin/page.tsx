@@ -10,6 +10,12 @@ export default async function AdminPage() {
       <Link href="/admin/matches" className="underline">
         Gestione partite e risultati
       </Link>
+      <Link href="/admin/users" className="underline">
+        Gestione utenti
+      </Link>
+      <Link href="/admin/seasons" className="underline">
+        Gestione stagioni
+      </Link>
     </div>
   );
 }

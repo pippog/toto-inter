@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { connection } from "next/server";
 import { getCurrentUser, getActiveSeason } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { LogoutButton } from "@/app/(auth)/logout-button";
@@ -24,6 +25,8 @@ export default async function MatchesPage() {
     },
   });
 
+  await connection();
+  // eslint-disable-next-line react-hooks/purity -- il rule non riconosce connection() come guardia: sopra forza la valutazione a request time.
   const now = Date.now();
 
   return (
