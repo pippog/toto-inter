@@ -98,28 +98,28 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col gap-6 p-4 pb-12 md:p-8">
-      <div className="inter-pinstripe relative overflow-hidden rounded-3xl bg-gradient-to-br from-inter-navy via-inter-navy to-inter-black px-6 py-8 shadow-card-hover md:px-10 md:py-10">
+      <div className="sidebar-pinstripe relative overflow-hidden rounded-3xl border border-[var(--sidebar-border)] bg-gradient-to-br from-[var(--sidebar-from)] via-[var(--sidebar-via)] to-[var(--sidebar-to)] px-6 py-8 shadow-card-hover md:px-10 md:py-10">
         <div className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-inter-gold/10 blur-3xl" />
-        <div className="pointer-events-none absolute -left-10 bottom-0 size-40 rounded-full bg-white/5 blur-3xl" />
-        <p className="relative text-sm font-medium tracking-wide text-inter-gold-light">
+        <div className="pointer-events-none absolute -left-10 bottom-0 size-40 rounded-full bg-[var(--sidebar-hover)] blur-3xl" />
+        <p className="relative text-sm font-medium tracking-wide text-inter-gold">
           Stagione {season.label}
         </p>
-        <h1 className="relative mt-1 text-3xl font-bold tracking-tight text-white md:text-4xl">
+        <h1 className="relative mt-1 text-3xl font-bold tracking-tight text-[var(--sidebar-text)] md:text-4xl">
           Ciao, {user.name}
         </h1>
-        <p className="relative mt-2 max-w-lg text-sm text-white/70">
+        <p className="relative mt-2 max-w-lg text-sm text-[var(--sidebar-text-muted)]">
           Pronostica i risultati e il primo marcatore dell&apos;Inter prima di ogni partita, scala la classifica e mantieni la striscia.
         </p>
 
         {upcomingMatches.length > 0 && (
           <div className="relative mt-6 max-w-xs">
-            <div className="mb-1.5 flex items-center justify-between text-xs text-white/60">
+            <div className="mb-1.5 flex items-center justify-between text-xs text-[var(--sidebar-text-muted)]">
               <span>Pronostici prossime partite</span>
-              <span className="font-medium text-inter-gold-light">
+              <span className="font-medium text-inter-gold">
                 {predictedUpcoming}/{upcomingMatches.length}
               </span>
             </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--sidebar-divider)]">
               <div
                 className="h-full rounded-full bg-inter-gold"
                 style={{ width: `${Math.max(4, matchdayCompletion)}%` }}

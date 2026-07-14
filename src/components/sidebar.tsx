@@ -106,7 +106,7 @@ export function Sidebar({
       )}
 
       <aside
-        className={`sidebar-pinstripe fixed inset-y-0 left-0 z-50 flex h-full flex-col border-r border-[var(--sidebar-border)] bg-gradient-to-b from-[var(--sidebar-from)] via-[var(--sidebar-via)] to-[var(--sidebar-to)] shadow-card-hover backdrop-blur-xl transition-all duration-200 ease-in-out md:sticky md:top-0 md:z-0 md:translate-x-0 md:shadow-none ${
+        className={`sidebar-pinstripe fixed inset-y-0 left-0 z-50 flex h-full flex-col border-r border-[var(--sidebar-border)] bg-gradient-to-b from-[var(--sidebar-from)] via-[var(--sidebar-via)] to-[var(--sidebar-to)] shadow-card-hover backdrop-blur-xl transition-all duration-200 ease-in-out md:sticky md:top-0 md:z-0 md:h-auto md:translate-x-0 md:self-stretch md:shadow-none ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         } ${collapsed ? "md:w-[72px]" : "md:w-64"} w-72`}
       >
