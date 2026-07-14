@@ -78,7 +78,6 @@ export async function setManualResult(
   if (scorerKind === "PLAYER_GOAL" && !scorerPlayerName) {
     return { error: "Inserisci il nome del giocatore che segna per l'Inter." };
   }
-  const opponentLogoUrl = String(formData.get("opponentLogoUrl") ?? "").trim() || null;
 
   await prisma.match.update({
     where: { id: matchId },
@@ -87,7 +86,6 @@ export async function setManualResult(
       awayScore,
       firstScorerKind: scorerKind,
       firstScorerPlayerName: scorerPlayerName,
-      opponentLogoUrl,
       resultSource: "MANUAL",
     },
   });
@@ -99,5 +97,26 @@ export async function setManualResult(
   revalidatePath(`/matches/${matchId}`);
   revalidatePath("/matches");
   revalidatePath("/leaderboard");
+  return { success: true };
+}
+
+export async function updateOpponentLogo(
+  matchId: string,
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  await requireAdmin();
+
+  const opponentLogoUrl = String(formData.get("opponentLogoUrl") ?? "").trim() || null;
+
+  await prisma.match.update({
+    where: { id: matchId },
+    data: { opponentLogoUrl },
+  });
+
+  revalidatePath(`/admin/matches/${matchId}/result`);
+  revalidatePath("/admin/matches");
+  revalidatePath(`/matches/${matchId}`);
+  revalidatePath("/matches");
   return { success: true };
 }

@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 export function TeamBadge({
   label,
   variant,
@@ -9,13 +13,15 @@ export function TeamBadge({
   logoUrl?: string | null;
   size?: 9 | 7;
 }) {
+  const [broken, setBroken] = useState(false);
   const sizeClass = size === 7 ? "size-7" : "size-9";
 
-  if (variant === "opponent" && logoUrl) {
+  if (variant === "opponent" && logoUrl && !broken) {
     return (
       <img
         src={logoUrl}
         alt={label}
+        onError={() => setBroken(true)}
         className={`${sizeClass} shrink-0 rounded-full bg-zinc-100 object-contain p-1`}
       />
     );

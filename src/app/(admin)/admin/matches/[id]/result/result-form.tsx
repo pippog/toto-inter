@@ -10,7 +10,6 @@ type MatchResultFields = {
   awayScore: number | null;
   firstScorerKind: string | null;
   firstScorerPlayerName: string | null;
-  opponentLogoUrl: string | null;
 };
 
 export function ResultForm({
@@ -66,17 +65,6 @@ export function ResultForm({
         </label>
         <span className="pb-1.5 text-xs text-zinc-500">(risultato ai 90&apos;)</span>
       </div>
-
-      <label className="flex flex-col gap-1 text-sm">
-        Logo avversario (URL, opzionale)
-        <input
-          name="opponentLogoUrl"
-          type="url"
-          defaultValue={match.opponentLogoUrl ?? ""}
-          placeholder="https://…"
-          className="rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
-        />
-      </label>
 
       <fieldset className="flex flex-col gap-2">
         <legend className="text-sm text-zinc-500">
