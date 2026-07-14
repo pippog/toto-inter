@@ -233,11 +233,10 @@ body::before {
 /* Righine nerazzurre: texture leggera che richiama il pinstripe delle
    maglie Inter. .inter-pinstripe è fissa bianca (per l'hero, sempre su
    sfondo navy pieno a prescindere dal tema); .sidebar-pinstripe segue
-   --pinstripe-color perché lo sfondo della sidebar cambia con il tema. */
-.inter-pinstripe,
-.sidebar-pinstripe {
-  position: relative;
-}
+   --pinstripe-color perché lo sfondo della sidebar cambia con il tema.
+   Niente position qui: sidebar (fixed/sticky) e hero (relative) hanno già
+   il proprio positioning via classi Tailwind — dichiararlo di nuovo qui
+   sovrascriveva "sticky" con "relative" e rompeva lo scroll della sidebar. */
 .inter-pinstripe::after,
 .sidebar-pinstripe::after {
   content: "";
