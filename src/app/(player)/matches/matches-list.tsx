@@ -7,6 +7,8 @@ import { CompetitionBadge } from "@/components/competition-badge";
 import { TeamBadge } from "@/components/team-badge";
 import { EmptyState } from "@/components/empty-state";
 import { formatItalianDateTime } from "@/lib/italianTime";
+import { TiltCard } from "@/components/tilt-card";
+import { StaggerList, StaggerItem } from "@/components/stagger-list";
 
 type MatchRow = {
   id: string;
@@ -61,57 +63,56 @@ export function MatchesList({ matches }: { matches: MatchRow[] }) {
         ))}
       </div>
 
-      <ul className="flex flex-col gap-3">
+      <StaggerList as="ul" className="flex flex-col gap-3">
         {filtered.map((match) => {
           const homeName = match.isHome ? "Inter" : match.opponent;
           const awayName = match.isHome ? match.opponent : "Inter";
 
           return (
-            <li key={match.id}>
-              <Link
-                href={`/matches/${match.id}`}
-                className="group flex flex-col gap-3 rounded-2xl bg-surface p-4 shadow-card transition-all duration-150 hover:-translate-y-0.5 hover:shadow-card-hover"
-              >
-                <div className="flex items-center justify-between text-xs">
-                  <CompetitionBadge competition={match.competition} />
-                  <span className={`rounded-full px-2 py-0.5 font-medium ${STATUS_STYLES[match.status]}`}>
-                    {match.status}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-1 items-center gap-2">
-                    <TeamBadge
-                      label={homeName}
-                      variant={match.isHome ? "inter" : "opponent"}
-                      logoUrl={match.opponentLogoUrl}
-                    />
-                    <span className="truncate text-sm font-medium">{homeName}</span>
-                  </div>
-
-                  {match.finished ? (
-                    <span className="px-3 text-lg font-bold text-heading">
-                      {match.homeScore} – {match.awayScore}
+            <StaggerItem as="li" key={match.id}>
+              <Link href={`/matches/${match.id}`} className="block">
+                <TiltCard className="flex flex-col gap-3 rounded-2xl bg-surface p-4 shadow-card">
+                  <div className="flex items-center justify-between text-xs">
+                    <CompetitionBadge competition={match.competition} />
+                    <span className={`rounded-full px-2 py-0.5 font-medium ${STATUS_STYLES[match.status]}`}>
+                      {match.status}
                     </span>
-                  ) : (
-                    <span className="px-3 text-xs font-semibold text-zinc-300">VS</span>
-                  )}
-
-                  <div className="flex flex-1 items-center justify-end gap-2">
-                    <span className="truncate text-sm font-medium">{awayName}</span>
-                    <TeamBadge
-                      label={awayName}
-                      variant={!match.isHome ? "inter" : "opponent"}
-                      logoUrl={match.opponentLogoUrl}
-                    />
                   </div>
-                </div>
 
-                <div className="text-xs text-zinc-400">
-                  {formatItalianDateTime(match.kickoffAt)}
-                </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-1 items-center gap-2">
+                      <TeamBadge
+                        label={homeName}
+                        variant={match.isHome ? "inter" : "opponent"}
+                        logoUrl={match.opponentLogoUrl}
+                      />
+                      <span className="truncate text-sm font-medium">{homeName}</span>
+                    </div>
+
+                    {match.finished ? (
+                      <span className="px-3 text-lg font-bold text-heading">
+                        {match.homeScore} – {match.awayScore}
+                      </span>
+                    ) : (
+                      <span className="px-3 text-xs font-semibold text-zinc-300">VS</span>
+                    )}
+
+                    <div className="flex flex-1 items-center justify-end gap-2">
+                      <span className="truncate text-sm font-medium">{awayName}</span>
+                      <TeamBadge
+                        label={awayName}
+                        variant={!match.isHome ? "inter" : "opponent"}
+                        logoUrl={match.opponentLogoUrl}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-zinc-400">
+                    {formatItalianDateTime(match.kickoffAt)}
+                  </div>
+                </TiltCard>
               </Link>
-            </li>
+            </StaggerItem>
           );
         })}
         {filtered.length === 0 && (
@@ -119,7 +120,7 @@ export function MatchesList({ matches }: { matches: MatchRow[] }) {
             <EmptyState icon={CalendarX} message="Nessuna partita in questa categoria." />
           </li>
         )}
-      </ul>
+      </StaggerList>
     </div>
   );
 }

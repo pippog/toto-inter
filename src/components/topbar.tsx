@@ -41,7 +41,7 @@ export function Topbar() {
   const crumbs = breadcrumbFor(pathname);
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-black/5 bg-surface/80 px-4 py-3 backdrop-blur-md md:px-8">
+    <header className="sticky top-0 z-30 flex items-center justify-between bg-surface px-4 py-3 shadow-card md:px-8">
       <div className="flex items-center gap-3">
         <button
           type="button"

@@ -1,12 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  /* Canvas grigio-chiaro (non bianco puro): le card bianche "galleggiano"
-     sopra con un'ombra, invece di delimitarsi con bordi piatti — è questo
-     scarto di luminosità minimo (canvas vs surface) a dare profondità. */
+  /* Canvas chiarissimo dietro il mesh sfumato (vedi body::before): le card
+     non sono più bianche piatte ma vetro smerigliato (--surface translucido
+     + backdrop-filter sulla classe .bg-surface, sotto) — il mesh si intravede
+     attraverso, dando la profondità che un bordo/ombra piatti non danno. */
   --background: #f3f4f8;
-  --surface: #ffffff;
+  --surface: rgba(255, 255, 255, 0.55);
   --foreground: #111318;
+
+  /* Blob del mesh di sfondo: pastello e appena percettibili in chiaro (il
+     glass rende molto di più in dark, dove i blob possono essere più decisi
+     senza compromettere la leggibilità). */
+  --mesh-a: rgba(12, 27, 77, 0.10);
+  --mesh-b: rgba(212, 169, 62, 0.16);
+  --mesh-c: rgba(2, 132, 199, 0.09);
+
+  /* Bordo sottile per il vetro: mai invertito a mano, cambia solo con
+     --surface nei blocchi dark mode più sotto. */
+  --glass-border: rgba(255, 255, 255, 0.6);
 
   /* Palette Inter: navy nerazzurro come colore di brand primario, nero per
      contrasto/testo forte, oro per accenti puntuali (richiama lo scudetto).
@@ -71,16 +83,20 @@
   --color-heading: var(--heading);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --shadow-card: 0 1px 2px rgba(12, 27, 77, 0.04), 0 8px 24px -12px rgba(12, 27, 77, 0.12);
-  --shadow-card-hover: 0 2px 4px rgba(12, 27, 77, 0.06), 0 16px 32px -12px rgba(12, 27, 77, 0.18);
+  --shadow-card: 0 1px 1px rgba(12, 27, 77, 0.03), 0 16px 40px -20px rgba(12, 27, 77, 0.22);
+  --shadow-card-hover: 0 2px 2px rgba(12, 27, 77, 0.05), 0 24px 56px -20px rgba(12, 27, 77, 0.32);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0b0d12;
-    --surface: #14161d;
+    --surface: rgba(20, 22, 29, 0.45);
     --foreground: #ededed;
     --heading: #e9ecf5;
+    --mesh-a: rgba(12, 27, 77, 0.6);
+    --mesh-b: rgba(212, 169, 62, 0.22);
+    --mesh-c: rgba(2, 132, 199, 0.28);
+    --glass-border: rgba(255, 255, 255, 0.08);
   }
 }
 
@@ -88,22 +104,74 @@
    direzioni, applicato via data-theme sull'html da ThemeToggle. */
 :root[data-theme="dark"] {
   --background: #0b0d12;
-  --surface: #14161d;
+  --surface: rgba(20, 22, 29, 0.45);
   --foreground: #ededed;
   --heading: #e9ecf5;
+  --mesh-a: rgba(12, 27, 77, 0.6);
+  --mesh-b: rgba(212, 169, 62, 0.22);
+  --mesh-c: rgba(2, 132, 199, 0.28);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 :root[data-theme="light"] {
   --background: #f3f4f8;
-  --surface: #ffffff;
+  --surface: rgba(255, 255, 255, 0.55);
   --foreground: #111318;
   --heading: var(--inter-navy);
+  --mesh-a: rgba(12, 27, 77, 0.1);
+  --mesh-b: rgba(212, 169, 62, 0.16);
+  --mesh-c: rgba(2, 132, 199, 0.09);
+  --glass-border: rgba(255, 255, 255, 0.6);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  position: relative;
+}
+
+/* Mesh di sfondo fisso dietro tutto il contenuto: i blob si intravedono
+   attraverso le card in vetro smerigliato (.bg-surface, sotto), è questo a
+   dare profondità reale invece di un'ombra su un canvas piatto. inset
+   negativo + scale nella keyframe evitano bordi netti quando il layer si
+   sposta. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -10%;
+  z-index: -1;
+  background-image:
+    radial-gradient(circle at 20% 20%, var(--mesh-a) 0%, transparent 50%),
+    radial-gradient(circle at 85% 25%, var(--mesh-b) 0%, transparent 45%),
+    radial-gradient(circle at 50% 85%, var(--mesh-c) 0%, transparent 55%);
+  filter: blur(60px);
+  animation: mesh-drift 30s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+  }
+}
+
+@keyframes mesh-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-3%, 3%, 0) scale(1.06);
+  }
+}
+
+/* Retrofit "vetro": ogni card esistente usa già bg-surface (32 punti, 22
+   file) — invece di toccarli uno a uno, la trasparenza di --surface più
+   questa regola bastano a trasformarli tutti in vetro smerigliato. */
+.bg-surface {
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid var(--glass-border);
 }
 
 @keyframes rise-in {

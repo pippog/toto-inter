@@ -105,7 +105,7 @@ export function Sidebar({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-full flex-col bg-gradient-to-b from-inter-navy via-inter-navy to-inter-navy-dark shadow-card-hover transition-all duration-200 ease-in-out md:sticky md:top-0 md:z-0 md:translate-x-0 md:shadow-none ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-full flex-col border-r border-[var(--glass-border)] bg-gradient-to-b from-inter-navy/90 via-inter-navy/85 to-inter-navy-dark/90 shadow-card-hover backdrop-blur-xl transition-all duration-200 ease-in-out md:sticky md:top-0 md:z-0 md:translate-x-0 md:shadow-none ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         } ${collapsed ? "md:w-[72px]" : "md:w-64"} w-72`}
       >

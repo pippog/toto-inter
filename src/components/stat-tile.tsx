@@ -1,4 +1,6 @@
 import type { ComponentType } from "react";
+import { TiltCard } from "./tilt-card";
+import { AnimatedNumber } from "./animated-number";
 
 type Accent = "gold" | "navy" | "teal" | "amber" | "violet" | "rose" | "sky";
 
@@ -28,21 +30,32 @@ export function StatTile({
   value,
   accent = "navy",
   progress,
+  decimals = 0,
+  suffix = "",
 }: {
   icon: ComponentType<{ className?: string }>;
   label: string;
+  /** Numero → si anima al mount; stringa (es. "#1", "—") → statico, per i casi che non sono un conteggio. */
   value: string | number;
   accent?: Accent;
   /** 0-100: se presente, mostra una barra di avanzamento sotto il valore. */
   progress?: number;
+  decimals?: number;
+  suffix?: string;
 }) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl bg-surface p-4 shadow-card">
+    <TiltCard className="flex flex-col gap-3 rounded-2xl bg-surface p-4 shadow-card">
       <span className={`flex size-9 items-center justify-center rounded-xl ${ACCENT_STYLES[accent]}`}>
         <Icon className="size-[18px]" />
       </span>
       <div className="flex flex-col gap-0.5">
-        <span className="text-xl font-bold text-heading">{value}</span>
+        <span className="text-xl font-bold text-heading">
+          {typeof value === "number" ? (
+            <AnimatedNumber value={value} decimals={decimals} suffix={suffix} />
+          ) : (
+            value
+          )}
+        </span>
         <span className="text-xs text-zinc-500">{label}</span>
       </div>
       {progress !== undefined && (
@@ -53,6 +66,6 @@ export function StatTile({
           />
         </div>
       )}
-    </div>
+    </TiltCard>
   );
 }

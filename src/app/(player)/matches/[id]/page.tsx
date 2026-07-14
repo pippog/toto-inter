@@ -10,6 +10,7 @@ import { Timeline, TimelineItem } from "@/components/timeline";
 import { Avatar } from "@/components/avatar";
 import { TeamBadge } from "@/components/team-badge";
 import { formatItalianDateTime } from "@/lib/italianTime";
+import { AnimatedNumber } from "@/components/animated-number";
 
 const SCORER_LABELS: Record<string, string> = {
   PLAYER_GOAL: "Giocatore",
@@ -130,32 +131,40 @@ export default async function MatchDetailPage({
               icon={Target}
               accent="sky"
               label={myScore.resCorrect ? `Risultato (1/${wRes} su ${totalScored})` : "Risultato"}
-              value={`${Number(myScore.resPoints).toFixed(2)} pt`}
+              value={Number(myScore.resPoints)}
+              decimals={2}
+              suffix=" pt"
             />
             <StatTile
               icon={Crosshair}
               accent="violet"
               label={myScore.marcatoreCorrect ? `Marcatore (1/${wMarcatore} su ${totalScored})` : "Marcatore"}
-              value={`${Number(myScore.marcatorePoints).toFixed(2)} pt`}
+              value={Number(myScore.marcatorePoints)}
+              decimals={2}
+              suffix=" pt"
             />
             <StatTile
               icon={Sparkles}
               accent="amber"
               label="Bonus combo"
-              value={`${Number(myScore.comboBonus).toFixed(2)} pt`}
+              value={Number(myScore.comboBonus)}
+              decimals={2}
+              suffix=" pt"
             />
             <StatTile
               icon={TrendingUp}
               accent="teal"
               label={`Streak ${myScore.resStreakLenAfter}/${myScore.marcatoreStreakLenAfter}`}
-              value={`${Number(myScore.streakBonusPoints).toFixed(2)} pt`}
+              value={Number(myScore.streakBonusPoints)}
+              decimals={2}
+              suffix=" pt"
             />
           </div>
 
           <div className="flex items-center justify-between rounded-xl bg-inter-navy-soft px-4 py-3">
             <span className="text-sm font-medium text-inter-navy">Totale partita</span>
             <span className="text-xl font-bold text-inter-navy">
-              {Number(myScore.totalPoints).toFixed(2)} pt
+              <AnimatedNumber value={Number(myScore.totalPoints)} decimals={2} suffix=" pt" />
             </span>
           </div>
         </div>

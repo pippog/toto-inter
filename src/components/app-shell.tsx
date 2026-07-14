@@ -20,7 +20,7 @@ export function AppShell({
     <MobileNavProvider>
       <div className="flex min-h-screen flex-col md:flex-row">
         <Sidebar userName={userName} avatarUrl={avatarUrl} isAdmin={isAdmin} logoutSlot={logoutSlot} />
-        <div className="flex min-h-screen flex-1 flex-col bg-background">
+        <div className="flex min-h-screen flex-1 flex-col">
           <Topbar />
           <main className="flex-1">{children}</main>
         </div>

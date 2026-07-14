@@ -3,6 +3,9 @@ import { getActiveSeason } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { Avatar } from "@/components/avatar";
 import { EmptyState } from "@/components/empty-state";
+import { TiltCard } from "@/components/tilt-card";
+import { StaggerList, StaggerItem } from "@/components/stagger-list";
+import { AnimatedNumber } from "@/components/animated-number";
 
 const PODIUM_STYLE = [
   { order: "md:order-2", height: "h-28", ring: "ring-inter-gold", badge: "bg-inter-gold text-inter-navy-dark" },
@@ -49,66 +52,65 @@ export default async function LeaderboardPage() {
       </h1>
 
       {top3.length > 0 && (
-        <div className="flex items-end justify-center gap-4 md:gap-6">
+        <StaggerList as="div" className="flex items-end justify-center gap-4 md:gap-6">
           {top3.map((s, i) => (
-            <div
-              key={s.id}
-              className={`flex flex-col items-center gap-2 opacity-0 ${PODIUM_STYLE[i].order}`}
-              style={{ animation: "rise-in 0.5s ease-out forwards", animationDelay: `${i * 100}ms` }}
-            >
-              {i === 0 && <Crown className="size-5 text-inter-gold" />}
-              <div className={`rounded-full ring-2 ${PODIUM_STYLE[i].ring}`}>
-                <Avatar name={s.name} avatarUrl={s.avatarUrl} size={i === 0 ? 56 : 44} />
-              </div>
-              <span className="max-w-20 truncate text-sm font-semibold text-heading">
-                {s.name}
-              </span>
-              <span className="text-xs text-zinc-500">{s.totalPoints.toFixed(2)} pt</span>
-              <div
-                className={`flex w-16 items-start justify-center rounded-t-xl pt-1 text-sm font-bold shadow-card ${PODIUM_STYLE[i].height} ${PODIUM_STYLE[i].badge}`}
-              >
-                {i + 1}
-              </div>
-            </div>
+            <StaggerItem as="div" key={s.id} className={PODIUM_STYLE[i].order}>
+              <TiltCard className="flex flex-col items-center gap-2">
+                {i === 0 && <Crown className="size-5 text-inter-gold" />}
+                <div className={`rounded-full ring-2 ${PODIUM_STYLE[i].ring}`}>
+                  <Avatar name={s.name} avatarUrl={s.avatarUrl} size={i === 0 ? 56 : 44} />
+                </div>
+                <span className="max-w-20 truncate text-sm font-semibold text-heading">
+                  {s.name}
+                </span>
+                <span className="text-xs text-zinc-500">
+                  <AnimatedNumber value={s.totalPoints} decimals={2} suffix=" pt" />
+                </span>
+                <div
+                  className={`flex w-16 items-start justify-center rounded-t-xl pt-1 text-sm font-bold shadow-card ${PODIUM_STYLE[i].height} ${PODIUM_STYLE[i].badge}`}
+                >
+                  {i + 1}
+                </div>
+              </TiltCard>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerList>
       )}
 
-      <ol className="flex flex-col gap-1.5">
+      <StaggerList as="ol" className="flex flex-col gap-1.5">
         {rest.map((s, i) => (
-          <li
-            key={s.id}
-            className="flex flex-col gap-1.5 rounded-xl bg-surface px-4 py-3 shadow-card"
-          >
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-3">
-                <span className="flex size-6 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-600">
-                  {i + 4}
+          <StaggerItem as="li" key={s.id}>
+            <TiltCard className="flex flex-col gap-1.5 rounded-xl bg-surface px-4 py-3 shadow-card">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-3">
+                  <span className="flex size-6 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-600">
+                    {i + 4}
+                  </span>
+                  <Avatar name={s.name} avatarUrl={s.avatarUrl} size={26} />
+                  <span className="text-sm">
+                    {s.name}{" "}
+                    <span className="text-xs text-zinc-500">({s.played} partite)</span>
+                  </span>
                 </span>
-                <Avatar name={s.name} avatarUrl={s.avatarUrl} size={26} />
-                <span className="text-sm">
-                  {s.name}{" "}
-                  <span className="text-xs text-zinc-500">({s.played} partite)</span>
+                <span className="text-sm font-semibold text-heading">
+                  <AnimatedNumber value={s.totalPoints} decimals={2} suffix=" pt" />
                 </span>
-              </span>
-              <span className="text-sm font-semibold text-heading">
-                {s.totalPoints.toFixed(2)} pt
-              </span>
-            </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
-              <div
-                className="h-full rounded-full bg-inter-navy/60"
-                style={{ width: `${Math.max(4, (s.totalPoints / leaderPoints) * 100)}%` }}
-              />
-            </div>
-          </li>
+              </div>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
+                <div
+                  className="h-full rounded-full bg-inter-navy/60"
+                  style={{ width: `${Math.max(4, (s.totalPoints / leaderPoints) * 100)}%` }}
+                />
+              </div>
+            </TiltCard>
+          </StaggerItem>
         ))}
         {standings.length === 0 && (
           <li>
             <EmptyState icon={Trophy} message="Nessun punteggio ancora registrato." />
           </li>
         )}
-      </ol>
+      </StaggerList>
     </div>
   );
 }

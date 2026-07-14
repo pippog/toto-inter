@@ -10,6 +10,8 @@ import { Timeline, TimelineItem } from "@/components/timeline";
 import { PointsChart } from "@/components/points-chart";
 import { competitionLabel } from "@/lib/competition";
 import { formatItalianDateTime } from "@/lib/italianTime";
+import { StaggerList, StaggerItem } from "@/components/stagger-list";
+import { AnimatedNumber } from "@/components/animated-number";
 
 export default async function HomePage() {
   const user = await getCurrentUser();
@@ -68,21 +70,28 @@ export default async function HomePage() {
 
   const recentMatches = [...myMatchScores].reverse().slice(0, 4);
 
-  const stats = [
-    { label: "Posizione", value: myRank > 0 ? `#${myRank}` : "—", icon: Hash, accent: "gold" as const },
-    { label: "I tuoi punti", value: myPoints.toFixed(2), icon: Trophy, accent: "navy" as const },
+  const stats: {
+    label: string;
+    value: string | number;
+    icon: typeof Hash;
+    accent: "gold" | "navy" | "teal" | "amber";
+    decimals?: number;
+    progress?: number;
+  }[] = [
+    { label: "Posizione", value: myRank > 0 ? `#${myRank}` : "—", icon: Hash, accent: "gold" },
+    { label: "I tuoi punti", value: myPoints, decimals: 2, icon: Trophy, accent: "navy" },
     {
       label: "Streak risultato",
       value: streak?.currentResStreak ?? 0,
       icon: Target,
-      accent: "teal" as const,
+      accent: "teal",
       progress: Math.min(100, ((streak?.currentResStreak ?? 0) / 4) * 100),
     },
     {
       label: "Streak marcatore",
       value: streak?.currentMarcatoreStreak ?? 0,
       icon: Flame,
-      accent: "amber" as const,
+      accent: "amber",
       progress: Math.min(100, ((streak?.currentMarcatoreStreak ?? 0) / 4) * 100),
     },
   ];
@@ -122,7 +131,16 @@ export default async function HomePage() {
 
       <div className="mx-auto grid w-full max-w-4xl grid-cols-2 gap-3 md:grid-cols-4">
         {stats.map((s) => (
-          <StatTile key={s.label} icon={s.icon} label={s.label} value={s.value} accent={s.accent} progress={s.progress} />
+          <StatTile
+            key={s.label}
+            icon={s.icon}
+            label={s.label}
+            value={s.value}
+            accent={s.accent}
+            progress={s.progress}
+            decimals={s.decimals}
+            suffix={typeof s.value === "number" && s.decimals ? " pt" : ""}
+          />
         ))}
       </div>
 
@@ -137,9 +155,10 @@ export default async function HomePage() {
               Tutta la classifica <ArrowRight className="size-3" />
             </Link>
           </div>
-          <ol className="flex flex-col gap-1.5">
+          <StaggerList as="ol" className="flex flex-col gap-1.5">
             {standings.map((s, i) => (
-              <li
+              <StaggerItem
+                as="li"
                 key={s.id}
                 className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm transition-colors ${
                   s.id === user.id ? "bg-inter-navy/5" : "hover:bg-zinc-50"
@@ -156,15 +175,17 @@ export default async function HomePage() {
                   <Avatar name={s.name} avatarUrl={s.avatarUrl} size={20} />
                   {s.name}
                 </span>
-                <span className="font-medium text-heading">{s.totalPoints.toFixed(2)} pt</span>
-              </li>
+                <span className="font-medium text-heading">
+                  <AnimatedNumber value={s.totalPoints} decimals={2} suffix=" pt" />
+                </span>
+              </StaggerItem>
             ))}
             {standings.length === 0 && (
               <li>
                 <EmptyState icon={Trophy} message="Nessun punteggio ancora registrato." compact />
               </li>
             )}
-          </ol>
+          </StaggerList>
         </section>
 
         <section className="flex flex-col gap-3 rounded-2xl bg-surface p-5 shadow-card">
@@ -177,11 +198,11 @@ export default async function HomePage() {
               Tutte le partite <ArrowRight className="size-3" />
             </Link>
           </div>
-          <ul className="flex flex-col gap-1.5">
+          <StaggerList as="ul" className="flex flex-col gap-1.5">
             {upcomingMatches.map((match) => {
               const hasPredicted = match.predictions.length > 0;
               return (
-                <li key={match.id}>
+                <StaggerItem as="li" key={match.id}>
                   <Link
                     href={`/matches/${match.id}`}
                     className="flex items-center justify-between rounded-xl px-3 py-2 text-sm transition-colors hover:bg-zinc-50"
@@ -205,7 +226,7 @@ export default async function HomePage() {
                       {hasPredicted ? "Pronosticato" : "Da pronosticare"}
                     </span>
                   </Link>
-                </li>
+                </StaggerItem>
               );
             })}
             {upcomingMatches.length === 0 && (
@@ -213,7 +234,7 @@ export default async function HomePage() {
                 <EmptyState icon={CalendarDays} message="Nessuna partita in calendario." compact />
               </li>
             )}
-          </ul>
+          </StaggerList>
         </section>
       </div>
 
@@ -247,7 +268,7 @@ export default async function HomePage() {
                 subtitle={`${ms.match.homeScore}-${ms.match.awayScore} — ${competitionLabel(ms.match.competition)}`}
                 trailing={
                   <span className="font-semibold text-heading">
-                    {Number(ms.totalPoints).toFixed(2)} pt
+                    <AnimatedNumber value={Number(ms.totalPoints)} decimals={2} suffix=" pt" />
                   </span>
                 }
               />
