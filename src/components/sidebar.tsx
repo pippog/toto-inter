@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ComponentType } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Home,
@@ -116,12 +117,16 @@ export function Sidebar({
             aria-label={collapsed ? "Espandi il menu" : undefined}
             className="flex items-center gap-2.5"
           >
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-inter-gold to-inter-gold-light text-sm font-bold text-inter-navy-dark shadow-sm">
-              TI
-            </span>
+            <Image
+              src="/inter-logo.png"
+              alt="Inter"
+              width={32}
+              height={32}
+              className="size-8 shrink-0 rounded-lg bg-white shadow-sm"
+            />
             {!collapsed && (
               <span className="text-lg font-semibold tracking-tight text-white">
-                Toto<span className="text-inter-gold-light">-Inter</span>
+                Amaral<span className="text-inter-gold-light">game</span>
               </span>
             )}
           </button>
