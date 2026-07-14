@@ -62,6 +62,20 @@
      differenza di --inter-navy (fisso, usato per sfondi/bottoni), questo
      si inverte in dark mode così il contrasto regge sempre. */
   --heading: var(--inter-navy);
+
+  /* Sidebar: navy pieno stonava di giorno (unica superficie scura su una
+     pagina chiara) — di giorno diventa vetro chiaro come le altre card, di
+     notte resta il navy pieno originale. */
+  --sidebar-from: rgba(255, 255, 255, 0.65);
+  --sidebar-via: rgba(255, 255, 255, 0.55);
+  --sidebar-to: rgba(255, 255, 255, 0.5);
+  --sidebar-text: var(--inter-navy);
+  --sidebar-text-muted: rgba(12, 27, 77, 0.55);
+  --sidebar-hover: rgba(12, 27, 77, 0.06);
+  --sidebar-divider: rgba(12, 27, 77, 0.14);
+  --sidebar-panel: rgba(12, 27, 77, 0.06);
+  --sidebar-border: rgba(12, 27, 77, 0.16);
+  --pinstripe-color: rgba(12, 27, 77, 0.05);
 }
 
 @theme inline {
@@ -103,6 +117,16 @@
     --mesh-b: rgba(212, 169, 62, 0.3);
     --mesh-c: rgba(22, 41, 95, 0.55);
     --glass-border: rgba(255, 255, 255, 0.08);
+    --sidebar-from: rgba(12, 27, 77, 0.92);
+    --sidebar-via: rgba(12, 27, 77, 0.88);
+    --sidebar-to: rgba(8, 19, 52, 0.92);
+    --sidebar-text: #ffffff;
+    --sidebar-text-muted: rgba(255, 255, 255, 0.6);
+    --sidebar-hover: rgba(255, 255, 255, 0.05);
+    --sidebar-divider: rgba(255, 255, 255, 0.12);
+    --sidebar-panel: rgba(255, 255, 255, 0.06);
+    --sidebar-border: var(--glass-border);
+    --pinstripe-color: rgba(255, 255, 255, 0.07);
   }
 }
 
@@ -117,6 +141,16 @@
   --mesh-b: rgba(212, 169, 62, 0.3);
   --mesh-c: rgba(22, 41, 95, 0.55);
   --glass-border: rgba(255, 255, 255, 0.08);
+  --sidebar-from: rgba(12, 27, 77, 0.92);
+  --sidebar-via: rgba(12, 27, 77, 0.88);
+  --sidebar-to: rgba(8, 19, 52, 0.92);
+  --sidebar-text: #ffffff;
+  --sidebar-text-muted: rgba(255, 255, 255, 0.6);
+  --sidebar-hover: rgba(255, 255, 255, 0.05);
+  --sidebar-divider: rgba(255, 255, 255, 0.12);
+  --sidebar-panel: rgba(255, 255, 255, 0.06);
+  --sidebar-border: var(--glass-border);
+  --pinstripe-color: rgba(255, 255, 255, 0.07);
 }
 
 :root[data-theme="light"] {
@@ -128,6 +162,16 @@
   --mesh-b: rgba(212, 169, 62, 0.4);
   --mesh-c: rgba(10, 10, 10, 0.3);
   --glass-border: rgba(255, 255, 255, 0.7);
+  --sidebar-from: rgba(255, 255, 255, 0.65);
+  --sidebar-via: rgba(255, 255, 255, 0.55);
+  --sidebar-to: rgba(255, 255, 255, 0.5);
+  --sidebar-text: var(--inter-navy);
+  --sidebar-text-muted: rgba(12, 27, 77, 0.55);
+  --sidebar-hover: rgba(12, 27, 77, 0.06);
+  --sidebar-divider: rgba(12, 27, 77, 0.14);
+  --sidebar-panel: rgba(12, 27, 77, 0.06);
+  --sidebar-border: rgba(12, 27, 77, 0.16);
+  --pinstripe-color: rgba(12, 27, 77, 0.05);
 }
 
 body {
@@ -187,11 +231,15 @@ body::before {
 }
 
 /* Righine nerazzurre: texture leggera che richiama il pinstripe delle
-   maglie Inter, applicata solo su superfici navy piene (hero, sidebar). */
-.inter-pinstripe {
+   maglie Inter. .inter-pinstripe è fissa bianca (per l'hero, sempre su
+   sfondo navy pieno a prescindere dal tema); .sidebar-pinstripe segue
+   --pinstripe-color perché lo sfondo della sidebar cambia con il tema. */
+.inter-pinstripe,
+.sidebar-pinstripe {
   position: relative;
 }
-.inter-pinstripe::after {
+.inter-pinstripe::after,
+.sidebar-pinstripe::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -199,11 +247,17 @@ body::before {
   pointer-events: none;
   background-image: repeating-linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.07) 0px,
-    rgba(255, 255, 255, 0.07) 2px,
+    var(--_pinstripe-line) 0px,
+    var(--_pinstripe-line) 2px,
     transparent 2px,
     transparent 16px
   );
+}
+.inter-pinstripe::after {
+  --_pinstripe-line: rgba(255, 255, 255, 0.07);
+}
+.sidebar-pinstripe::after {
+  --_pinstripe-line: var(--pinstripe-color);
 }
 
 @keyframes rise-in {

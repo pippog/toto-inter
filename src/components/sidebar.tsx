@@ -54,8 +54,8 @@ function NavLink({
       title={collapsed ? item.label : undefined}
       className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-150 ${
         active
-          ? "bg-gradient-to-r from-inter-gold/15 via-white/5 to-transparent font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
-          : "text-white/60 hover:bg-white/5 hover:text-white"
+          ? "bg-gradient-to-r from-inter-gold/15 via-[var(--sidebar-hover)] to-transparent font-medium text-[var(--sidebar-text)]"
+          : "text-[var(--sidebar-text-muted)] hover:bg-[var(--sidebar-hover)] hover:text-[var(--sidebar-text)]"
       }`}
     >
       <span
@@ -63,7 +63,7 @@ function NavLink({
           active ? "opacity-100" : "opacity-0 group-hover:opacity-30"
         }`}
       />
-      <Icon className={`size-[18px] shrink-0 ${active ? "text-inter-gold-light" : ""}`} />
+      <Icon className={`size-[18px] shrink-0 ${active ? "text-inter-gold" : ""}`} />
       {!collapsed && <span>{item.label}</span>}
     </Link>
   );
@@ -106,7 +106,7 @@ export function Sidebar({
       )}
 
       <aside
-        className={`inter-pinstripe fixed inset-y-0 left-0 z-50 flex h-full flex-col border-r border-[var(--glass-border)] bg-gradient-to-b from-inter-navy/90 via-inter-navy/85 to-inter-navy-dark/90 shadow-card-hover backdrop-blur-xl transition-all duration-200 ease-in-out md:sticky md:top-0 md:z-0 md:translate-x-0 md:shadow-none ${
+        className={`sidebar-pinstripe fixed inset-y-0 left-0 z-50 flex h-full flex-col border-r border-[var(--sidebar-border)] bg-gradient-to-b from-[var(--sidebar-from)] via-[var(--sidebar-via)] to-[var(--sidebar-to)] shadow-card-hover backdrop-blur-xl transition-all duration-200 ease-in-out md:sticky md:top-0 md:z-0 md:translate-x-0 md:shadow-none ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         } ${collapsed ? "md:w-[72px]" : "md:w-64"} w-72`}
       >
@@ -125,8 +125,8 @@ export function Sidebar({
               className="size-8 shrink-0 rounded-lg bg-white shadow-sm"
             />
             {!collapsed && (
-              <span className="text-lg font-semibold tracking-tight text-white">
-                Amaral<span className="text-inter-gold-light">game</span>
+              <span className="text-lg font-semibold tracking-tight text-[var(--sidebar-text)]">
+                Amaral<span className="text-inter-gold">game</span>
               </span>
             )}
           </button>
@@ -134,7 +134,7 @@ export function Sidebar({
             type="button"
             onClick={() => setMobileOpen(false)}
             aria-label="Chiudi il menu"
-            className="text-white/70 hover:text-white md:hidden"
+            className="text-[var(--sidebar-text-muted)] hover:text-[var(--sidebar-text)] md:hidden"
           >
             <X className="size-5" />
           </button>
@@ -143,7 +143,7 @@ export function Sidebar({
               type="button"
               onClick={() => setCollapsed(true)}
               aria-label="Comprimi il menu"
-              className="hidden text-white/40 transition-colors hover:text-white md:block"
+              className="hidden text-[var(--sidebar-text-muted)] transition-colors hover:text-[var(--sidebar-text)] md:block"
             >
               <ChevronsLeft className="size-4" />
             </button>
@@ -163,14 +163,14 @@ export function Sidebar({
 
           {isAdmin && (
             <>
-              <div className={`mt-6 mb-2 flex items-center gap-2 px-3 ${collapsed ? "justify-center" : ""}`}>
-                {!collapsed && (
-                  <span className="h-px flex-1 bg-white/10" />
+              <div className={`mt-6 mb-2 px-3 ${collapsed ? "flex justify-center" : ""}`}>
+                {collapsed ? (
+                  <span className="block h-px w-6 bg-[var(--sidebar-divider)]" />
+                ) : (
+                  <span className="inline-flex items-center rounded-full bg-[var(--sidebar-divider)] px-2.5 py-1 text-[10px] font-semibold tracking-widest text-[var(--sidebar-text-muted)]">
+                    ADMIN
+                  </span>
                 )}
-                <span className="text-[10px] font-semibold tracking-widest text-white/30">
-                  ADMIN
-                </span>
-                {!collapsed && <span className="h-px flex-1 bg-white/10" />}
               </div>
               {ADMIN_NAV.map((item) => (
                 <NavLink
@@ -185,11 +185,11 @@ export function Sidebar({
           )}
         </nav>
 
-        <div className="mx-3 mb-3 rounded-xl bg-white/5 p-2">
+        <div className="mx-3 mb-3 rounded-xl bg-[var(--sidebar-panel)] p-2">
           {!collapsed && (
             <div className="mb-1 flex items-center gap-2 px-1 py-1">
               <Avatar name={userName} avatarUrl={avatarUrl} size={26} />
-              <p className="truncate text-xs font-medium text-white/70">{userName}</p>
+              <p className="truncate text-xs font-medium text-[var(--sidebar-text-muted)]">{userName}</p>
             </div>
           )}
           {logoutSlot}
