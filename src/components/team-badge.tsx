@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 export function TeamBadge({
   label,
@@ -15,8 +16,21 @@ export function TeamBadge({
 }) {
   const [broken, setBroken] = useState(false);
   const sizeClass = size === 7 ? "size-7" : "size-9";
+  const pixelSize = size === 7 ? 28 : 36;
 
-  if (variant === "opponent" && logoUrl && !broken) {
+  if (variant === "inter") {
+    return (
+      <Image
+        src="/inter-logo.png"
+        alt="Inter"
+        width={pixelSize}
+        height={pixelSize}
+        className={`${sizeClass} shrink-0 rounded-full bg-zinc-100 object-contain`}
+      />
+    );
+  }
+
+  if (logoUrl && !broken) {
     return (
       <img
         src={logoUrl}
@@ -29,13 +43,9 @@ export function TeamBadge({
 
   return (
     <span
-      className={`flex ${sizeClass} shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-        variant === "inter"
-          ? "bg-gradient-to-br from-inter-navy to-inter-black text-white"
-          : "bg-zinc-100 text-zinc-500"
-      }`}
+      className={`flex ${sizeClass} shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs font-bold text-zinc-500`}
     >
-      {variant === "inter" ? "IN" : label.slice(0, 2).toUpperCase()}
+      {label.slice(0, 2).toUpperCase()}
     </span>
   );
 }
