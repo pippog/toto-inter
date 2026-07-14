@@ -13,9 +13,9 @@
      troppo timida, ~10% — quasi indistinguibile da un canvas piatto). Terzo
      blob nero invece di azzurro generico — richiama il nero della maglia
      nerazzurra invece di un blu da "SaaS dashboard". */
-  --mesh-a: rgba(12, 27, 77, 0.3);
-  --mesh-b: rgba(212, 169, 62, 0.34);
-  --mesh-c: rgba(10, 10, 10, 0.22);
+  --mesh-a: rgba(12, 27, 77, 0.38);
+  --mesh-b: rgba(212, 169, 62, 0.4);
+  --mesh-c: rgba(10, 10, 10, 0.3);
 
   /* Bordo sottile per il vetro: mai invertito a mano, cambia solo con
      --surface nei blocchi dark mode più sotto. */
@@ -99,9 +99,9 @@
     --surface: rgba(20, 22, 29, 0.45);
     --foreground: #ededed;
     --heading: #e9ecf5;
-    --mesh-a: rgba(12, 27, 77, 0.6);
-    --mesh-b: rgba(212, 169, 62, 0.22);
-    --mesh-c: rgba(2, 132, 199, 0.28);
+    --mesh-a: rgba(12, 27, 77, 0.65);
+    --mesh-b: rgba(212, 169, 62, 0.3);
+    --mesh-c: rgba(22, 41, 95, 0.55);
     --glass-border: rgba(255, 255, 255, 0.08);
   }
 }
@@ -113,9 +113,9 @@
   --surface: rgba(20, 22, 29, 0.45);
   --foreground: #ededed;
   --heading: #e9ecf5;
-  --mesh-a: rgba(12, 27, 77, 0.6);
-  --mesh-b: rgba(212, 169, 62, 0.22);
-  --mesh-c: rgba(2, 132, 199, 0.28);
+  --mesh-a: rgba(12, 27, 77, 0.65);
+  --mesh-b: rgba(212, 169, 62, 0.3);
+  --mesh-c: rgba(22, 41, 95, 0.55);
   --glass-border: rgba(255, 255, 255, 0.08);
 }
 
@@ -124,9 +124,9 @@
   --surface: rgba(255, 255, 255, 0.45);
   --foreground: #111318;
   --heading: var(--inter-navy);
-  --mesh-a: rgba(12, 27, 77, 0.3);
-  --mesh-b: rgba(212, 169, 62, 0.34);
-  --mesh-c: rgba(2, 132, 199, 0.26);
+  --mesh-a: rgba(12, 27, 77, 0.38);
+  --mesh-b: rgba(212, 169, 62, 0.4);
+  --mesh-c: rgba(10, 10, 10, 0.3);
   --glass-border: rgba(255, 255, 255, 0.7);
 }
 
@@ -177,9 +177,33 @@ body::before {
 .bg-surface {
   backdrop-filter: blur(20px) saturate(150%);
   -webkit-backdrop-filter: blur(20px) saturate(150%);
-  border: 3px solid var(--card-rim);
-  outline: 1.5px solid var(--inter-navy);
-  outline-offset: -6px;
+  border: 4px solid var(--card-rim);
+  /* outline con offset negativo non si vedeva bene su tutti i browser/zoom:
+     un inset box-shadow segue sempre il border-radius in modo affidabile. */
+  box-shadow:
+    inset 0 0 0 3px var(--inter-navy),
+    0 1px 1px rgba(12, 27, 77, 0.03),
+    0 16px 40px -20px rgba(12, 27, 77, 0.22);
+}
+
+/* Righine nerazzurre: texture leggera che richiama il pinstripe delle
+   maglie Inter, applicata solo su superfici navy piene (hero, sidebar). */
+.inter-pinstripe {
+  position: relative;
+}
+.inter-pinstripe::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.07) 0px,
+    rgba(255, 255, 255, 0.07) 2px,
+    transparent 2px,
+    transparent 16px
+  );
 }
 
 @keyframes rise-in {

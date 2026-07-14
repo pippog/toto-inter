@@ -98,7 +98,7 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col gap-6 p-4 pb-12 md:p-8">
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-inter-navy via-inter-navy to-inter-black px-6 py-8 shadow-card-hover md:px-10 md:py-10">
+      <div className="inter-pinstripe relative overflow-hidden rounded-3xl bg-gradient-to-br from-inter-navy via-inter-navy to-inter-black px-6 py-8 shadow-card-hover md:px-10 md:py-10">
         <div className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-inter-gold/10 blur-3xl" />
         <div className="pointer-events-none absolute -left-10 bottom-0 size-40 rounded-full bg-white/5 blur-3xl" />
         <p className="relative text-sm font-medium tracking-wide text-inter-gold-light">
