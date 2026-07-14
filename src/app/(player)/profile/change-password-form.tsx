@@ -11,7 +11,7 @@ export function ChangePasswordForm() {
       action={action}
       className="flex flex-col gap-3 rounded-2xl bg-surface shadow-card p-4"
     >
-      <h2 className="font-medium text-inter-navy">Cambia password</h2>
+      <h2 className="font-medium text-heading">Cambia password</h2>
       <label className="flex flex-col gap-1 text-sm">
         Password attuale
         <input

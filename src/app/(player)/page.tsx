@@ -4,15 +4,8 @@ import { Trophy, CalendarDays, ArrowRight, Flame, Target, Hash } from "lucide-re
 import { getCurrentUser, getActiveSeason } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { Avatar } from "@/components/avatar";
-
-const COMPETITION_LABELS: Record<string, string> = {
-  SERIE_A: "Serie A",
-  COPPA_ITALIA: "Coppa Italia",
-  CHAMPIONS_LEAGUE: "Champions League",
-  EUROPA_LEAGUE: "Europa League",
-  FRIENDLY: "Amichevole",
-  OTHER: "Altro",
-};
+import { StatTile } from "@/components/stat-tile";
+import { competitionLabel } from "@/lib/competition";
 
 export default async function HomePage() {
   const user = await getCurrentUser();
@@ -50,50 +43,76 @@ export default async function HomePage() {
     },
   });
 
+  const predictedUpcoming = upcomingMatches.filter((m) => m.predictions.length > 0).length;
+  const matchdayCompletion =
+    upcomingMatches.length > 0 ? Math.round((predictedUpcoming / upcomingMatches.length) * 100) : 0;
+
   const stats = [
-    { label: "Posizione", value: myRank > 0 ? `#${myRank}` : "—", icon: Hash },
-    { label: "I tuoi punti", value: myPoints.toFixed(2), icon: Trophy },
-    { label: "Streak risultato", value: streak?.currentResStreak ?? 0, icon: Target },
-    { label: "Streak marcatore", value: streak?.currentMarcatoreStreak ?? 0, icon: Flame },
+    { label: "Posizione", value: myRank > 0 ? `#${myRank}` : "—", icon: Hash, accent: "gold" as const },
+    { label: "I tuoi punti", value: myPoints.toFixed(2), icon: Trophy, accent: "navy" as const },
+    {
+      label: "Streak risultato",
+      value: streak?.currentResStreak ?? 0,
+      icon: Target,
+      accent: "teal" as const,
+      progress: Math.min(100, ((streak?.currentResStreak ?? 0) / 4) * 100),
+    },
+    {
+      label: "Streak marcatore",
+      value: streak?.currentMarcatoreStreak ?? 0,
+      icon: Flame,
+      accent: "amber" as const,
+      progress: Math.min(100, ((streak?.currentMarcatoreStreak ?? 0) / 4) * 100),
+    },
   ];
 
   return (
-    <div className="flex flex-col gap-6 pb-12">
-      <div className="relative overflow-hidden bg-gradient-to-br from-inter-navy via-inter-navy to-inter-black px-8 pb-14 pt-10">
-        <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-inter-gold/10 blur-3xl" />
-        <div className="pointer-events-none absolute -left-16 bottom-0 size-56 rounded-full bg-white/5 blur-3xl" />
+    <div className="flex flex-col gap-6 p-4 pb-12 md:p-8">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-inter-navy via-inter-navy to-inter-black px-6 py-8 shadow-card-hover md:px-10 md:py-10">
+        <div className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-inter-gold/10 blur-3xl" />
+        <div className="pointer-events-none absolute -left-10 bottom-0 size-40 rounded-full bg-white/5 blur-3xl" />
         <p className="relative text-sm font-medium tracking-wide text-inter-gold-light">
           Stagione {season.label}
         </p>
-        <h1 className="relative mt-1 text-4xl font-bold tracking-tight text-white">
+        <h1 className="relative mt-1 text-3xl font-bold tracking-tight text-white md:text-4xl">
           Ciao, {user.name}
         </h1>
         <p className="relative mt-2 max-w-lg text-sm text-white/70">
           Pronostica i risultati e il primo marcatore dell&apos;Inter prima di ogni partita, scala la classifica e mantieni la striscia.
         </p>
+
+        {upcomingMatches.length > 0 && (
+          <div className="relative mt-6 max-w-xs">
+            <div className="mb-1.5 flex items-center justify-between text-xs text-white/60">
+              <span>Pronostici prossime partite</span>
+              <span className="font-medium text-inter-gold-light">
+                {predictedUpcoming}/{upcomingMatches.length}
+              </span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full bg-inter-gold"
+                style={{ width: `${Math.max(4, matchdayCompletion)}%` }}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="mx-auto -mt-10 grid w-full max-w-4xl grid-cols-2 gap-3 px-8 md:grid-cols-4">
+      <div className="mx-auto grid w-full max-w-4xl grid-cols-2 gap-3 md:grid-cols-4">
         {stats.map((s) => (
-          <div
-            key={s.label}
-            className="flex flex-col gap-1 rounded-2xl bg-surface p-4 shadow-card"
-          >
-            <s.icon className="size-4 text-inter-gold" />
-            <span className="text-xl font-bold text-inter-navy">{s.value}</span>
-            <span className="text-xs text-zinc-500">{s.label}</span>
-          </div>
+          <StatTile key={s.label} icon={s.icon} label={s.label} value={s.value} accent={s.accent} progress={s.progress} />
         ))}
       </div>
 
-      <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-6 px-8 md:grid-cols-2">
+      <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-6 md:grid-cols-2">
         <section className="flex flex-col gap-3 rounded-2xl bg-surface p-5 shadow-card">
           <div className="flex items-center justify-between">
-            <h2 className="flex items-center gap-2 font-semibold text-inter-navy">
+            <h2 className="flex items-center gap-2 font-semibold text-heading">
               <Trophy className="size-[18px]" />
               Classifica
             </h2>
-            <Link href="/leaderboard" className="flex items-center gap-1 text-xs text-zinc-500 transition-colors hover:text-inter-navy">
+            <Link href="/leaderboard" className="flex items-center gap-1 text-xs text-zinc-500 transition-colors hover:text-heading">
               Tutta la classifica <ArrowRight className="size-3" />
             </Link>
           </div>
@@ -116,7 +135,7 @@ export default async function HomePage() {
                   <Avatar name={s.name} avatarUrl={s.avatarUrl} size={20} />
                   {s.name}
                 </span>
-                <span className="font-medium text-inter-navy">{s.totalPoints.toFixed(2)} pt</span>
+                <span className="font-medium text-heading">{s.totalPoints.toFixed(2)} pt</span>
               </li>
             ))}
             {standings.length === 0 && (
@@ -127,11 +146,11 @@ export default async function HomePage() {
 
         <section className="flex flex-col gap-3 rounded-2xl bg-surface p-5 shadow-card">
           <div className="flex items-center justify-between">
-            <h2 className="flex items-center gap-2 font-semibold text-inter-navy">
+            <h2 className="flex items-center gap-2 font-semibold text-heading">
               <CalendarDays className="size-[18px]" />
               Prossime partite
             </h2>
-            <Link href="/matches" className="flex items-center gap-1 text-xs text-zinc-500 transition-colors hover:text-inter-navy">
+            <Link href="/matches" className="flex items-center gap-1 text-xs text-zinc-500 transition-colors hover:text-heading">
               Tutte le partite <ArrowRight className="size-3" />
             </Link>
           </div>
@@ -149,15 +168,15 @@ export default async function HomePage() {
                         Inter {match.isHome ? "-" : "@"} {match.opponent}
                       </div>
                       <div className="text-xs text-zinc-500">
-                        {COMPETITION_LABELS[match.competition] ?? match.competition} —{" "}
+                        {competitionLabel(match.competition)} —{" "}
                         {match.kickoffAt.toLocaleString("it-IT", { dateStyle: "medium", timeStyle: "short" })}
                       </div>
                     </div>
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                         hasPredicted
-                          ? "bg-inter-navy/10 text-inter-navy"
-                          : "bg-inter-gold/20 text-inter-navy-dark"
+                          ? "bg-inter-navy-soft text-inter-navy"
+                          : "bg-inter-gold-soft text-inter-navy-dark"
                       }`}
                     >
                       {hasPredicted ? "Pronosticato" : "Da pronosticare"}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { Minus, Plus } from "lucide-react";
 import { ScorerPlayerField } from "@/components/scorer-player-field";
 import { submitPrediction } from "./actions";
 
@@ -10,6 +11,51 @@ type Initial = {
   predictedScorerKind: string;
   predictedScorerPlayerName: string | null;
 } | null;
+
+function ScoreStepper({
+  label,
+  name,
+  value,
+  onChange,
+}: {
+  label: string;
+  name: string;
+  value: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <div className="flex flex-1 flex-col items-center gap-2">
+      <span className="text-sm font-medium text-zinc-500">{label}</span>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onChange(Math.max(0, value - 1))}
+          aria-label={`Diminuisci ${label}`}
+          className="flex size-8 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 transition-colors hover:bg-zinc-200 hover:text-inter-navy"
+        >
+          <Minus className="size-3.5" />
+        </button>
+        <input
+          type="number"
+          name={name}
+          min={0}
+          value={value}
+          onChange={(e) => onChange(Math.max(0, Number(e.target.value) || 0))}
+          required
+          className="w-12 rounded-lg bg-transparent text-center text-2xl font-bold text-heading focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        />
+        <button
+          type="button"
+          onClick={() => onChange(value + 1)}
+          aria-label={`Aumenta ${label}`}
+          className="flex size-8 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 transition-colors hover:bg-zinc-200 hover:text-inter-navy"
+        >
+          <Plus className="size-3.5" />
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export function PredictionForm({
   matchId,
@@ -29,81 +75,68 @@ export function PredictionForm({
   const [scorerKind, setScorerKind] = useState(
     initial?.predictedScorerKind ?? "NONE",
   );
+  const [homeScore, setHomeScore] = useState(initial?.predictedHomeScore ?? 0);
+  const [awayScore, setAwayScore] = useState(initial?.predictedAwayScore ?? 0);
 
   const homeLabel = isHome ? "Inter" : opponent;
   const awayLabel = isHome ? opponent : "Inter";
 
+  const scorerOptions = [
+    { value: "NONE", title: "Nessun marcatore", subtitle: "L'Inter non segna" },
+    { value: "OWN_GOAL", title: "Autogol avversario", subtitle: "A favore dell'Inter" },
+    { value: "PLAYER_GOAL", title: "Un giocatore dell'Inter", subtitle: null },
+  ] as const;
+
   return (
-    <form action={action} className="flex flex-col gap-4 rounded-2xl bg-surface shadow-card p-4">
-      <h2 className="font-medium text-inter-navy">
+    <form action={action} className="flex flex-col gap-5 rounded-2xl bg-surface shadow-card p-5">
+      <h2 className="font-medium text-heading">
         {initial ? "Modifica il tuo pronostico" : "Il tuo pronostico"}
       </h2>
 
-      <div className="flex items-end gap-2">
-        <label className="flex flex-col gap-1 text-sm">
-          {homeLabel}
-          <input
-            type="number"
-            name="homeScore"
-            min={0}
-            defaultValue={initial?.predictedHomeScore ?? 0}
-            required
-            className="w-16 rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
-          />
-        </label>
-        <span className="pb-1.5">-</span>
-        <label className="flex flex-col gap-1 text-sm">
-          {awayLabel}
-          <input
-            type="number"
-            name="awayScore"
-            min={0}
-            defaultValue={initial?.predictedAwayScore ?? 0}
-            required
-            className="w-16 rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
-          />
-        </label>
+      <div className="flex items-center justify-center gap-4 rounded-xl bg-background/60 py-4">
+        <ScoreStepper label={homeLabel} name="homeScore" value={homeScore} onChange={setHomeScore} />
+        <span className="text-lg font-semibold text-zinc-300">–</span>
+        <ScoreStepper label={awayLabel} name="awayScore" value={awayScore} onChange={setAwayScore} />
       </div>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-sm text-zinc-500">
+        <legend className="mb-1 text-sm text-zinc-500">
           Primo marcatore dell&apos;Inter
         </legend>
-        <label className="flex items-center gap-2">
-          <input
-            type="radio"
-            name="scorerKind"
-            value="NONE"
-            checked={scorerKind === "NONE"}
-            onChange={() => setScorerKind("NONE")}
-          />
-          Nessun marcatore (l&apos;Inter non segna)
-        </label>
-        <label className="flex items-center gap-2">
-          <input
-            type="radio"
-            name="scorerKind"
-            value="OWN_GOAL"
-            checked={scorerKind === "OWN_GOAL"}
-            onChange={() => setScorerKind("OWN_GOAL")}
-          />
-          Autogol avversario a favore dell&apos;Inter
-        </label>
-        <label className="flex items-center gap-2">
-          <input
-            type="radio"
-            name="scorerKind"
-            value="PLAYER_GOAL"
-            checked={scorerKind === "PLAYER_GOAL"}
-            onChange={() => setScorerKind("PLAYER_GOAL")}
-          />
-          Un giocatore dell&apos;Inter:
-          <ScorerPlayerField
-            squad={squad}
-            initialName={initial?.predictedScorerPlayerName ?? null}
-            disabled={scorerKind !== "PLAYER_GOAL"}
-          />
-        </label>
+        {scorerOptions.map((option) => (
+          <label
+            key={option.value}
+            className={`flex cursor-pointer flex-col gap-2 rounded-xl border p-3 text-sm transition-colors ${
+              scorerKind === option.value
+                ? "border-inter-navy/30 bg-inter-navy/5"
+                : "border-black/10 hover:border-black/20"
+            }`}
+          >
+            <span className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="scorerKind"
+                value={option.value}
+                checked={scorerKind === option.value}
+                onChange={() => setScorerKind(option.value)}
+                className="accent-inter-navy"
+              />
+              <span className="flex flex-col">
+                <span className="font-medium">{option.title}</span>
+                {option.subtitle && <span className="text-xs text-zinc-500">{option.subtitle}</span>}
+              </span>
+            </span>
+            {option.value === "PLAYER_GOAL" && (
+              <div className="pl-6">
+                <ScorerPlayerField
+                  squad={squad}
+                  initialName={initial?.predictedScorerPlayerName ?? null}
+                  disabled={scorerKind !== "PLAYER_GOAL"}
+                />
+              </div>
+            )}
+          </label>
+        ))}
       </fieldset>
 
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}

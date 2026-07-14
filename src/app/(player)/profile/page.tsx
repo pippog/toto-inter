@@ -11,7 +11,7 @@ export default async function ProfilePage() {
       <div className="flex items-center gap-3">
         <Avatar name={user.name} avatarUrl={user.avatarUrl} size={56} />
         <div>
-          <h1 className="text-2xl font-semibold text-inter-navy">{user.name}</h1>
+          <h1 className="text-2xl font-semibold text-heading">{user.name}</h1>
           <p className="text-sm text-zinc-500">{user.email}</p>
         </div>
       </div>

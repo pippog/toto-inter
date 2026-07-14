@@ -21,7 +21,7 @@ export function ProfileForm({ initial }: { initial: Initial }) {
       action={action}
       className="flex flex-col gap-3 rounded-2xl bg-surface shadow-card p-4"
     >
-      <h2 className="font-medium text-inter-navy">Modifica profilo</h2>
+      <h2 className="font-medium text-heading">Modifica profilo</h2>
 
       <div className="flex items-center gap-3">
         <Avatar name={name || initial.name} avatarUrl={avatarUrl} size={48} />

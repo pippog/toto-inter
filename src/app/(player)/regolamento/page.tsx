@@ -1,15 +1,17 @@
+import { Timeline, TimelineItem } from "@/components/timeline";
+
 export default function RegolamentoPage() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-8 p-8 text-sm leading-relaxed">
       <div>
-        <h1 className="text-2xl font-semibold text-inter-navy">Regolamento</h1>
+        <h1 className="text-2xl font-semibold text-heading">Regolamento</h1>
         <p className="mt-1 text-zinc-500">
           Come funzionano pronostici, punteggio e classifica.
         </p>
       </div>
 
       <section className="flex flex-col gap-2">
-        <h2 className="font-medium text-inter-navy">Come si gioca</h2>
+        <h2 className="font-medium text-heading">Come si gioca</h2>
         <p>
           Prima di ogni partita dell&apos;Inter (tutte le competizioni: Serie A, Coppa
           Italia, Champions/Europa League, amichevoli), pronostica il <strong>risultato
@@ -25,7 +27,7 @@ export default function RegolamentoPage() {
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="font-medium text-inter-navy">Primo marcatore: solo l&apos;Inter</h2>
+        <h2 className="font-medium text-heading">Primo marcatore: solo l&apos;Inter</h2>
         <p>
           Non conta il primo gol assoluto della partita, ma solo <strong>chi apre le
           marcature per l&apos;Inter</strong>: un giocatore dell&apos;Inter, oppure un
@@ -36,7 +38,7 @@ export default function RegolamentoPage() {
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="font-medium text-inter-navy">Punteggio base: 1 punto diviso tra chi indovina</h2>
+        <h2 className="font-medium text-heading">Punteggio base: 1 punto diviso tra chi indovina</h2>
         <p>
           Per ogni partita c&apos;è <strong>1 punto per il risultato esatto</strong> e{" "}
           <strong>1 punto per il primo marcatore</strong>, e ognuno dei due punti si
@@ -50,7 +52,7 @@ export default function RegolamentoPage() {
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="font-medium text-inter-navy">Bonus combo: indovinare entrambi</h2>
+        <h2 className="font-medium text-heading">Bonus combo: indovinare entrambi</h2>
         <p>
           Se indovini <strong>sia il risultato sia il marcatore</strong> nella stessa
           partita, prendi un bonus del <strong>+50%</strong> sul totale dei due punti di
@@ -59,18 +61,25 @@ export default function RegolamentoPage() {
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="font-medium text-inter-navy">Bonus streak: indovinare di fila</h2>
+        <h2 className="font-medium text-heading">Bonus streak: indovinare di fila</h2>
         <p>
           Risultato e marcatore hanno ciascuno una propria &quot;striscia&quot;: quante
           partite di fila hai indovinato <em>quel singolo componente</em>. Le soglie non
           si sommano tra loro (non è 30+60+100), si applica solo quella più alta
           raggiunta:
         </p>
-        <ul className="ml-4 list-disc">
-          <li>2 di fila → +30%</li>
-          <li>3 di fila → +60%</li>
-          <li>4 o più di fila → +100%</li>
-        </ul>
+        <div className="rounded-2xl bg-surface p-4 shadow-card">
+          <Timeline>
+            <TimelineItem title="2 di fila" trailing={<span className="font-semibold text-heading">+30%</span>} />
+            <TimelineItem title="3 di fila" trailing={<span className="font-semibold text-heading">+60%</span>} />
+            <TimelineItem
+              title="4 o più di fila"
+              trailing={<span className="font-semibold text-heading">+100%</span>}
+              tone="success"
+              last
+            />
+          </Timeline>
+        </div>
         <p>
           Il bonus si applica al totale dei due punti base di quella partita, sommando
           la percentuale dello streak risultato e quella dello streak marcatore. Uno
@@ -80,7 +89,7 @@ export default function RegolamentoPage() {
       </section>
 
       <section className="flex flex-col gap-2 rounded-2xl bg-surface shadow-card p-4">
-        <h2 className="font-medium text-inter-navy">Esempio</h2>
+        <h2 className="font-medium text-heading">Esempio</h2>
         <p>
           Siete in 4 a pronosticare. Indovini sia il risultato (in 2 su 4) sia il
           marcatore (unico a indovinarlo), e sei alla tua 3ª partita di fila indovinata
@@ -99,7 +108,7 @@ export default function RegolamentoPage() {
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="font-medium text-inter-navy">Riservatezza dei pronostici</h2>
+        <h2 className="font-medium text-heading">Riservatezza dei pronostici</h2>
         <p>
           Il tuo pronostico è <strong>visibile solo a te</strong> fino al deadline (5
           minuti prima del calcio d&apos;inizio) — vale anche per l&apos;admin, che non
@@ -109,7 +118,7 @@ export default function RegolamentoPage() {
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="font-medium text-inter-navy">Partite rinviate o recuperate</h2>
+        <h2 className="font-medium text-heading">Partite rinviate o recuperate</h2>
         <p>
           Se una partita viene rinviata, conta semplicemente il risultato alla nuova
           data di recupero: i pronostici già fatti restano validi, cambia solo
@@ -118,7 +127,7 @@ export default function RegolamentoPage() {
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="font-medium text-inter-navy">Correzioni</h2>
+        <h2 className="font-medium text-heading">Correzioni</h2>
         <p>
           Se un risultato viene corretto (anche di una partita passata), classifica e
           streak si ricalcolano automaticamente da quella partita in poi, per tutta la

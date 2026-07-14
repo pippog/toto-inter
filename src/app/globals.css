@@ -18,6 +18,32 @@
   --inter-black: #0a0a0a;
   --inter-gold: #d4a93e;
   --inter-gold-light: #e6c878;
+
+  /* Accent multicolore per chip informativi (badge competizione, icone
+     stat): mai su bottoni o testo di brand, solo per differenziare
+     categorie a colpo d'occhio come nella dashboard di riferimento. */
+  --accent-teal: #0d9488;
+  --accent-teal-soft: #ccfbf1;
+  --accent-violet: #7c3aed;
+  --accent-violet-soft: #ede9fe;
+  --accent-amber: #d97706;
+  --accent-amber-soft: #fef3c7;
+  --accent-rose: #e11d48;
+  --accent-rose-soft: #ffe4e6;
+  --accent-sky: #0284c7;
+  --accent-sky-soft: #e0f2fe;
+
+  /* Tinte pallide fisse (mai invertite in dark mode) per badge/chip: a
+     differenza di bg-inter-navy/10 o bg-inter-gold/20, non fanno alpha-blend
+     con --surface, quindi il testo scuro abbinato resta leggibile anche
+     quando --surface diventa scura. */
+  --inter-navy-soft: #e7e9f2;
+  --inter-gold-soft: #fbeed0;
+
+  /* Testo enfatizzato (titoli, valori) su --surface/--background: a
+     differenza di --inter-navy (fisso, usato per sfondi/bottoni), questo
+     si inverte in dark mode così il contrasto regge sempre. */
+  --heading: var(--inter-navy);
 }
 
 @theme inline {
@@ -30,6 +56,19 @@
   --color-inter-black: var(--inter-black);
   --color-inter-gold: var(--inter-gold);
   --color-inter-gold-light: var(--inter-gold-light);
+  --color-accent-teal: var(--accent-teal);
+  --color-accent-teal-soft: var(--accent-teal-soft);
+  --color-accent-violet: var(--accent-violet);
+  --color-accent-violet-soft: var(--accent-violet-soft);
+  --color-accent-amber: var(--accent-amber);
+  --color-accent-amber-soft: var(--accent-amber-soft);
+  --color-accent-rose: var(--accent-rose);
+  --color-accent-rose-soft: var(--accent-rose-soft);
+  --color-accent-sky: var(--accent-sky);
+  --color-accent-sky-soft: var(--accent-sky-soft);
+  --color-inter-navy-soft: var(--inter-navy-soft);
+  --color-inter-gold-soft: var(--inter-gold-soft);
+  --color-heading: var(--heading);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --shadow-card: 0 1px 2px rgba(12, 27, 77, 0.04), 0 8px 24px -12px rgba(12, 27, 77, 0.12);
@@ -41,7 +80,24 @@
     --background: #0b0d12;
     --surface: #14161d;
     --foreground: #ededed;
+    --heading: #e9ecf5;
   }
+}
+
+/* Toggle manuale: ha precedenza sulla preferenza di sistema in entrambe le
+   direzioni, applicato via data-theme sull'html da ThemeToggle. */
+:root[data-theme="dark"] {
+  --background: #0b0d12;
+  --surface: #14161d;
+  --foreground: #ededed;
+  --heading: #e9ecf5;
+}
+
+:root[data-theme="light"] {
+  --background: #f3f4f8;
+  --surface: #ffffff;
+  --foreground: #111318;
+  --heading: var(--inter-navy);
 }
 
 body {

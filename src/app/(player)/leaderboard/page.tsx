@@ -43,7 +43,7 @@ export default async function LeaderboardPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col gap-8 p-8">
-      <h1 className="text-2xl font-bold tracking-tight text-inter-navy">
+      <h1 className="text-2xl font-bold tracking-tight text-heading">
         Classifica — {season.label}
       </h1>
 
@@ -58,7 +58,7 @@ export default async function LeaderboardPage() {
               <div className={`rounded-full ring-2 ${PODIUM_STYLE[i].ring}`}>
                 <Avatar name={s.name} avatarUrl={s.avatarUrl} size={i === 0 ? 56 : 44} />
               </div>
-              <span className="max-w-20 truncate text-sm font-semibold text-inter-navy">
+              <span className="max-w-20 truncate text-sm font-semibold text-heading">
                 {s.name}
               </span>
               <span className="text-xs text-zinc-500">{s.totalPoints.toFixed(2)} pt</span>
@@ -89,7 +89,7 @@ export default async function LeaderboardPage() {
                   <span className="text-xs text-zinc-500">({s.played} partite)</span>
                 </span>
               </span>
-              <span className="text-sm font-semibold text-inter-navy">
+              <span className="text-sm font-semibold text-heading">
                 {s.totalPoints.toFixed(2)} pt
               </span>
             </div>

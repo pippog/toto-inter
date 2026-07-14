@@ -38,7 +38,7 @@ export function ScorerPlayerField({
           <button
             type="button"
             onClick={() => setManualMode(false)}
-            className="text-xs text-inter-navy underline"
+            className="text-xs text-heading underline"
           >
             scegli dalla rosa
           </button>

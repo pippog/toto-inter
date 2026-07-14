@@ -1,17 +1,13 @@
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
+import { Target, Crosshair, Sparkles, TrendingUp } from "lucide-react";
 import { getCurrentUser, getVisiblePredictions } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { PredictionForm } from "./prediction-form";
-
-const COMPETITION_LABELS: Record<string, string> = {
-  SERIE_A: "Serie A",
-  COPPA_ITALIA: "Coppa Italia",
-  CHAMPIONS_LEAGUE: "Champions League",
-  EUROPA_LEAGUE: "Europa League",
-  FRIENDLY: "Amichevole",
-  OTHER: "Altro",
-};
+import { CompetitionBadge } from "@/components/competition-badge";
+import { StatTile } from "@/components/stat-tile";
+import { Timeline, TimelineItem } from "@/components/timeline";
+import { Avatar } from "@/components/avatar";
 
 const SCORER_LABELS: Record<string, string> = {
   PLAYER_GOAL: "Giocatore",
@@ -59,18 +55,20 @@ export default async function MatchDetailPage({
   const totalScored = allScores.length;
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-8">
-      <div>
-        <h1 className="text-xl font-semibold text-inter-navy">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 md:p-8">
+      <div className="flex flex-col gap-2 rounded-2xl bg-surface p-5 shadow-card">
+        <div className="flex items-center justify-between">
+          <CompetitionBadge competition={match.competition} />
+          <span className="text-xs text-zinc-400">
+            {match.kickoffAt.toLocaleString("it-IT", {
+              dateStyle: "medium",
+              timeStyle: "short",
+            })}
+          </span>
+        </div>
+        <h1 className="text-xl font-semibold text-heading">
           Inter {match.isHome ? "-" : "@"} {match.opponent}
         </h1>
-        <p className="text-sm text-zinc-500">
-          {COMPETITION_LABELS[match.competition] ?? match.competition} —{" "}
-          {match.kickoffAt.toLocaleString("it-IT", {
-            dateStyle: "medium",
-            timeStyle: "short",
-          })}
-        </p>
       </div>
 
       {!locked && (
@@ -91,7 +89,7 @@ export default async function MatchDetailPage({
 
       {match.status === "FINISHED" && (
         <div className="flex flex-col gap-2 rounded-2xl bg-surface shadow-card p-4">
-          <h2 className="font-medium text-inter-navy">Risultato ufficiale</h2>
+          <h2 className="font-medium text-heading">Risultato ufficiale</h2>
           <p>
             {match.homeScore} - {match.awayScore} — Primo marcatore Inter:{" "}
             {scorerLabel(match.firstScorerKind!, match.firstScorerPlayerName)}
@@ -101,7 +99,7 @@ export default async function MatchDetailPage({
 
       {myScore && myPrediction && (
         <div className="flex flex-col gap-1 rounded-2xl bg-surface shadow-card p-4 text-sm">
-          <h2 className="mb-2 font-medium text-inter-navy">Il tuo pronostico</h2>
+          <h2 className="mb-2 font-medium text-heading">Il tuo pronostico</h2>
           <p>
             {myPrediction.predictedHomeScore}-{myPrediction.predictedAwayScore}, marcatore:{" "}
             {scorerLabel(myPrediction.predictedScorerKind, myPrediction.predictedScorerPlayerName)}
@@ -110,42 +108,68 @@ export default async function MatchDetailPage({
       )}
 
       {myScore && (
-        <div className="flex flex-col gap-1 rounded-2xl bg-surface shadow-card p-4 text-sm">
-          <h2 className="mb-2 font-medium text-inter-navy">Il tuo punteggio in questa partita</h2>
-          <p>
-            Risultato indovinato: {myScore.resCorrect ? "sì" : "no"}
-            {myScore.resCorrect && ` (${wRes} su ${totalScored} hanno indovinato, quindi valeva 1/${wRes})`}
-            {" "}— {Number(myScore.resPoints).toFixed(3)} pt
-          </p>
-          <p>
-            Marcatore indovinato: {myScore.marcatoreCorrect ? "sì" : "no"}
-            {myScore.marcatoreCorrect && ` (${wMarcatore} su ${totalScored} hanno indovinato, quindi valeva 1/${wMarcatore})`}
-            {" "}— {Number(myScore.marcatorePoints).toFixed(3)} pt
-          </p>
-          <p>Base: {Number(myScore.basePoints).toFixed(3)} pt</p>
-          <p>Bonus combo: {Number(myScore.comboBonus).toFixed(3)} pt</p>
-          <p>
-            Streak risultato: {myScore.resStreakLenAfter} ({(Number(myScore.resStreakBonusPct) * 100).toFixed(0)}%) —
-            Streak marcatore: {myScore.marcatoreStreakLenAfter} ({(Number(myScore.marcatoreStreakBonusPct) * 100).toFixed(0)}%)
-          </p>
-          <p>Bonus streak: {Number(myScore.streakBonusPoints).toFixed(3)} pt</p>
-          <p className="mt-2 font-semibold text-inter-navy">
-            Totale: {Number(myScore.totalPoints).toFixed(3)} pt
-          </p>
+        <div className="flex flex-col gap-4 rounded-2xl bg-surface shadow-card p-4">
+          <h2 className="font-medium text-heading">Il tuo punteggio in questa partita</h2>
+
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <StatTile
+              icon={Target}
+              accent="sky"
+              label={myScore.resCorrect ? `Risultato (1/${wRes} su ${totalScored})` : "Risultato"}
+              value={`${Number(myScore.resPoints).toFixed(2)} pt`}
+            />
+            <StatTile
+              icon={Crosshair}
+              accent="violet"
+              label={myScore.marcatoreCorrect ? `Marcatore (1/${wMarcatore} su ${totalScored})` : "Marcatore"}
+              value={`${Number(myScore.marcatorePoints).toFixed(2)} pt`}
+            />
+            <StatTile
+              icon={Sparkles}
+              accent="amber"
+              label="Bonus combo"
+              value={`${Number(myScore.comboBonus).toFixed(2)} pt`}
+            />
+            <StatTile
+              icon={TrendingUp}
+              accent="teal"
+              label={`Streak ${myScore.resStreakLenAfter}/${myScore.marcatoreStreakLenAfter}`}
+              value={`${Number(myScore.streakBonusPoints).toFixed(2)} pt`}
+            />
+          </div>
+
+          <div className="flex items-center justify-between rounded-xl bg-inter-navy-soft px-4 py-3">
+            <span className="text-sm font-medium text-inter-navy">Totale partita</span>
+            <span className="text-xl font-bold text-inter-navy">
+              {Number(myScore.totalPoints).toFixed(2)} pt
+            </span>
+          </div>
         </div>
       )}
 
-      {locked && (
-        <div className="flex flex-col gap-2">
-          <h2 className="font-medium text-inter-navy">Pronostici {locked ? "" : "(nascosti fino al deadline)"}</h2>
-          <ul className="flex flex-col gap-1 text-sm">
-            {visiblePredictions.map((p) => (
-              <li key={p.id}>
-                {p.user.name}: {p.predictedHomeScore}-{p.predictedAwayScore}, marcatore:{" "}
-                {scorerLabel(p.predictedScorerKind, p.predictedScorerPlayerName)}
-              </li>
+      {locked && visiblePredictions.length > 0 && (
+        <div className="flex flex-col gap-3 rounded-2xl bg-surface p-4 shadow-card">
+          <h2 className="font-medium text-heading">Pronostici di tutti</h2>
+          <Timeline>
+            {visiblePredictions.map((p, i) => (
+              <TimelineItem
+                key={p.id}
+                last={i === visiblePredictions.length - 1}
+                title={
+                  <span className="flex items-center gap-2">
+                    <Avatar name={p.user.name} size={20} />
+                    {p.user.name}
+                  </span>
+                }
+                subtitle={`Marcatore: ${scorerLabel(p.predictedScorerKind, p.predictedScorerPlayerName)}`}
+                trailing={
+                  <span className="font-semibold text-heading">
+                    {p.predictedHomeScore}-{p.predictedAwayScore}
+                  </span>
+                }
+              />
             ))}
-          </ul>
+          </Timeline>
         </div>
       )}
     </div>

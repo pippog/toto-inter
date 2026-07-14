@@ -12,11 +12,11 @@ import {
   Users,
   CalendarRange,
   BookOpen,
-  Menu,
   X,
   ChevronsLeft,
 } from "lucide-react";
 import { Avatar } from "./avatar";
+import { useMobileNav } from "./mobile-nav-context";
 
 type NavItem = { href: string; label: string; icon: ComponentType<{ className?: string }> };
 
@@ -53,12 +53,12 @@ function NavLink({
       title={collapsed ? item.label : undefined}
       className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-150 ${
         active
-          ? "bg-white/10 font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+          ? "bg-gradient-to-r from-inter-gold/15 via-white/5 to-transparent font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
           : "text-white/60 hover:bg-white/5 hover:text-white"
       }`}
     >
       <span
-        className={`absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-inter-gold transition-all duration-150 ${
+        className={`absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-inter-gold transition-all duration-150 ${
           active ? "opacity-100" : "opacity-0 group-hover:opacity-30"
         }`}
       />
@@ -81,7 +81,7 @@ export function Sidebar({
 }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const { open: mobileOpen, setOpen: setMobileOpen } = useMobileNav();
 
   useEffect(() => {
     const stored = window.localStorage.getItem("sidebar-collapsed");
@@ -97,20 +97,6 @@ export function Sidebar({
 
   return (
     <>
-      {/* Barra superiore mobile: solo hamburger + wordmark, sidebar vera è off-canvas */}
-      <div className="flex items-center justify-between bg-gradient-to-r from-inter-navy to-inter-navy-dark px-4 py-3 shadow-card md:hidden">
-        <button
-          type="button"
-          onClick={() => setMobileOpen(true)}
-          aria-label="Apri il menu"
-          className="text-white"
-        >
-          <Menu className="size-6" />
-        </button>
-        <span className="font-semibold text-white">Toto-Inter</span>
-        <span className="w-6" />
-      </div>
-
       {mobileOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
