@@ -1,11 +1,23 @@
 import { connection } from "next/server";
-import { getCurrentUser, getActiveSeason } from "@/lib/dal";
+import { getCurrentUser, getSeason } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { MatchesList } from "./matches-list";
+import { SeasonSelector } from "@/components/season-selector";
 
-export default async function MatchesPage() {
+export default async function MatchesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ season?: string }>;
+}) {
   const user = await getCurrentUser();
-  const season = await getActiveSeason();
+  const { season: seasonParam } = await searchParams;
+  const [season, seasons] = await Promise.all([
+    getSeason(seasonParam),
+    prisma.season.findMany({
+      select: { id: true, label: true, isActive: true },
+      orderBy: { label: "desc" },
+    }),
+  ]);
 
   const matches = await prisma.match.findMany({
     where: { seasonId: season.id },
@@ -48,9 +60,12 @@ export default async function MatchesPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-8">
-      <h1 className="text-2xl font-bold tracking-tight text-heading">
-        Partite — {season.label}
-      </h1>
+      <div className="flex flex-col gap-3">
+        <h1 className="text-2xl font-bold tracking-tight text-heading">
+          Partite — {season.label}
+        </h1>
+        <SeasonSelector seasons={seasons} currentSeasonId={season.id} />
+      </div>
 
       <MatchesList matches={rows} />
     </div>

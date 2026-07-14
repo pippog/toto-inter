@@ -43,6 +43,17 @@ export const getActiveSeason = cache(async () => {
   return prisma.season.findFirstOrThrow({ where: { isActive: true } });
 });
 
+// Permette di sfogliare una stagione passata (es. dal selettore in
+// classifica/partite) passando il suo id; senza id o con un id non
+// valido si ricade sulla stagione attiva.
+export const getSeason = cache(async (seasonId?: string) => {
+  if (seasonId) {
+    const season = await prisma.season.findUnique({ where: { id: seasonId } });
+    if (season) return season;
+  }
+  return getActiveSeason();
+});
+
 // Regola di riservatezza (vedi piano): prima del deadline un utente vede
 // solo il proprio pronostico, mai quelli altrui — indipendentemente dal
 // ruolo (anche un admin che gioca non deve poter sbirciare in anticipo).

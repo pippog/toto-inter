@@ -1,11 +1,12 @@
 import { Crown, Trophy } from "lucide-react";
-import { getActiveSeason } from "@/lib/dal";
+import { getSeason } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { Avatar } from "@/components/avatar";
 import { EmptyState } from "@/components/empty-state";
 import { TiltCard } from "@/components/tilt-card";
 import { StaggerList, StaggerItem } from "@/components/stagger-list";
 import { AnimatedNumber } from "@/components/animated-number";
+import { SeasonSelector } from "@/components/season-selector";
 
 const PODIUM_STYLE = [
   { order: "md:order-2", height: "h-28", ring: "ring-inter-gold", badge: "bg-inter-gold text-inter-navy-dark" },
@@ -13,8 +14,19 @@ const PODIUM_STYLE = [
   { order: "md:order-3", height: "h-16", ring: "ring-amber-600", badge: "bg-amber-600 text-white" },
 ];
 
-export default async function LeaderboardPage() {
-  const season = await getActiveSeason();
+export default async function LeaderboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ season?: string }>;
+}) {
+  const { season: seasonParam } = await searchParams;
+  const [season, seasons] = await Promise.all([
+    getSeason(seasonParam),
+    prisma.season.findMany({
+      select: { id: true, label: true, isActive: true },
+      orderBy: { label: "desc" },
+    }),
+  ]);
 
   const users = await prisma.user.findMany({
     where: { status: "ACTIVE" },
@@ -47,9 +59,12 @@ export default async function LeaderboardPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col gap-8 p-8">
-      <h1 className="text-2xl font-bold tracking-tight text-heading">
-        Classifica — {season.label}
-      </h1>
+      <div className="flex flex-col gap-3">
+        <h1 className="text-2xl font-bold tracking-tight text-heading">
+          Classifica — {season.label}
+        </h1>
+        <SeasonSelector seasons={seasons} currentSeasonId={season.id} />
+      </div>
 
       {top3.length > 0 && (
         <StaggerList as="div" className="flex items-end justify-center gap-4 md:gap-6">
