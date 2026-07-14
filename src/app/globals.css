@@ -10,14 +10,21 @@
   --foreground: #111318;
 
   /* Blob del mesh di sfondo: decisi anche in chiaro (la prima versione era
-     troppo timida, ~10% — quasi indistinguibile da un canvas piatto). */
+     troppo timida, ~10% — quasi indistinguibile da un canvas piatto). Terzo
+     blob nero invece di azzurro generico — richiama il nero della maglia
+     nerazzurra invece di un blu da "SaaS dashboard". */
   --mesh-a: rgba(12, 27, 77, 0.3);
   --mesh-b: rgba(212, 169, 62, 0.34);
-  --mesh-c: rgba(2, 132, 199, 0.26);
+  --mesh-c: rgba(10, 10, 10, 0.22);
 
   /* Bordo sottile per il vetro: mai invertito a mano, cambia solo con
      --surface nei blocchi dark mode più sotto. */
   --glass-border: rgba(255, 255, 255, 0.7);
+
+  /* Bordo "maglia": bianco spesso + rigo navy sottile appena dentro,
+     richiama il piping delle maglie Inter — fisso in entrambi i temi
+     (è un dettaglio grafico, non testo, non serve invertirlo). */
+  --card-rim: rgba(255, 255, 255, 0.9);
 
   /* Palette Inter: navy nerazzurro come colore di brand primario, nero per
      contrasto/testo forte, oro per accenti puntuali (richiama lo scudetto).
@@ -170,7 +177,9 @@ body::before {
 .bg-surface {
   backdrop-filter: blur(20px) saturate(150%);
   -webkit-backdrop-filter: blur(20px) saturate(150%);
-  border: 1px solid var(--glass-border);
+  border: 3px solid var(--card-rim);
+  outline: 1.5px solid var(--inter-navy);
+  outline-offset: -6px;
 }
 
 @keyframes rise-in {
