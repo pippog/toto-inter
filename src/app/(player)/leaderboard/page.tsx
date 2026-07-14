@@ -28,14 +28,19 @@ export default async function LeaderboardPage({
     }),
   ]);
 
-  const users = await prisma.user.findMany({
-    where: { status: "ACTIVE" },
-    include: {
-      matchScores: {
-        where: { match: { seasonId: season.id } },
-      },
-    },
-  });
+  // Nella stagione attiva la classifica è quella del roster odierno. Per
+  // le stagioni passate mostriamo invece chiunque abbia davvero punteggi
+  // in quella stagione, a prescindere dallo stato odierno dell'account
+  // (gli storici pre-registrazione sono DISABLED apposta).
+  const users = season.isActive
+    ? await prisma.user.findMany({
+        where: { status: "ACTIVE" },
+        include: { matchScores: { where: { match: { seasonId: season.id } } } },
+      })
+    : await prisma.user.findMany({
+        where: { matchScores: { some: { match: { seasonId: season.id } } } },
+        include: { matchScores: { where: { match: { seasonId: season.id } } } },
+      });
 
   const standings = users
     .map((u) => {
