@@ -9,6 +9,7 @@ import { StatTile } from "@/components/stat-tile";
 import { Timeline, TimelineItem } from "@/components/timeline";
 import { Avatar } from "@/components/avatar";
 import { TeamBadge } from "@/components/team-badge";
+import { formatItalianDateTime } from "@/lib/italianTime";
 
 const SCORER_LABELS: Record<string, string> = {
   PLAYER_GOAL: "Giocatore",
@@ -62,10 +63,7 @@ export default async function MatchDetailPage({
         <div className="flex items-center justify-between">
           <CompetitionBadge competition={match.competition} />
           <span className="text-xs text-zinc-400">
-            {match.kickoffAt.toLocaleString("it-IT", {
-              dateStyle: "medium",
-              timeStyle: "short",
-            })}
+            {formatItalianDateTime(match.kickoffAt)}
           </span>
         </div>
         <h1 className="flex items-center gap-2 text-xl font-semibold text-heading">

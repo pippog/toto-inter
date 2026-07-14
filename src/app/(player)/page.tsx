@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Timeline, TimelineItem } from "@/components/timeline";
 import { PointsChart } from "@/components/points-chart";
 import { competitionLabel } from "@/lib/competition";
+import { formatItalianDateTime } from "@/lib/italianTime";
 
 export default async function HomePage() {
   const user = await getCurrentUser();
@@ -191,7 +192,7 @@ export default async function HomePage() {
                       </div>
                       <div className="text-xs text-zinc-500">
                         {competitionLabel(match.competition)} —{" "}
-                        {match.kickoffAt.toLocaleString("it-IT", { dateStyle: "medium", timeStyle: "short" })}
+                        {formatItalianDateTime(match.kickoffAt)}
                       </div>
                     </div>
                     <span

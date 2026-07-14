@@ -6,6 +6,7 @@ import { CalendarX } from "lucide-react";
 import { CompetitionBadge } from "@/components/competition-badge";
 import { TeamBadge } from "@/components/team-badge";
 import { EmptyState } from "@/components/empty-state";
+import { formatItalianDateTime } from "@/lib/italianTime";
 
 type MatchRow = {
   id: string;
@@ -107,10 +108,7 @@ export function MatchesList({ matches }: { matches: MatchRow[] }) {
                 </div>
 
                 <div className="text-xs text-zinc-400">
-                  {match.kickoffAt.toLocaleString("it-IT", {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  })}
+                  {formatItalianDateTime(match.kickoffAt)}
                 </div>
               </Link>
             </li>

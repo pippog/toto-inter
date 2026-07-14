@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { applyMatchResult } from "@/lib/scoring/applyMatchResult";
+import { parseItalianLocalDateTime } from "@/lib/italianTime";
 import type { Competition, ScorerKind } from "@/generated/prisma/enums";
 
 const DEADLINE_MINUTES_BEFORE_KICKOFF = 5;
@@ -21,7 +22,7 @@ export async function createMatch(
   });
 
   const kickoffAtRaw = String(formData.get("kickoffAt"));
-  const kickoffAt = new Date(kickoffAtRaw);
+  const kickoffAt = parseItalianLocalDateTime(kickoffAtRaw);
   if (Number.isNaN(kickoffAt.getTime())) {
     return { error: "Data/ora del calcio d'inizio non valida." };
   }

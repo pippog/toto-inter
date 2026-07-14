@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { CreateMatchForm } from "./create-match-form";
 import { CompetitionBadge } from "@/components/competition-badge";
+import { formatItalianDateTime } from "@/lib/italianTime";
 
 export default async function AdminMatchesPage() {
   await requireAdmin();
@@ -28,10 +29,7 @@ export default async function AdminMatchesPage() {
                 <CompetitionBadge competition={m.competition} />
                 <span>
                   Inter {m.isHome ? "-" : "@"} {m.opponent} —{" "}
-                  {m.kickoffAt.toLocaleString("it-IT", {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  })}
+                  {formatItalianDateTime(m.kickoffAt)}
                 </span>
               </span>
               <span className="text-sm text-zinc-500">
