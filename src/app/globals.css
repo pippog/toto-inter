@@ -6,19 +6,18 @@
      + backdrop-filter sulla classe .bg-surface, sotto) — il mesh si intravede
      attraverso, dando la profondità che un bordo/ombra piatti non danno. */
   --background: #f3f4f8;
-  --surface: rgba(255, 255, 255, 0.55);
+  --surface: rgba(255, 255, 255, 0.45);
   --foreground: #111318;
 
-  /* Blob del mesh di sfondo: pastello e appena percettibili in chiaro (il
-     glass rende molto di più in dark, dove i blob possono essere più decisi
-     senza compromettere la leggibilità). */
-  --mesh-a: rgba(12, 27, 77, 0.10);
-  --mesh-b: rgba(212, 169, 62, 0.16);
-  --mesh-c: rgba(2, 132, 199, 0.09);
+  /* Blob del mesh di sfondo: decisi anche in chiaro (la prima versione era
+     troppo timida, ~10% — quasi indistinguibile da un canvas piatto). */
+  --mesh-a: rgba(12, 27, 77, 0.3);
+  --mesh-b: rgba(212, 169, 62, 0.34);
+  --mesh-c: rgba(2, 132, 199, 0.26);
 
   /* Bordo sottile per il vetro: mai invertito a mano, cambia solo con
      --surface nei blocchi dark mode più sotto. */
-  --glass-border: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.7);
 
   /* Palette Inter: navy nerazzurro come colore di brand primario, nero per
      contrasto/testo forte, oro per accenti puntuali (richiama lo scudetto).
@@ -115,13 +114,13 @@
 
 :root[data-theme="light"] {
   --background: #f3f4f8;
-  --surface: rgba(255, 255, 255, 0.55);
+  --surface: rgba(255, 255, 255, 0.45);
   --foreground: #111318;
   --heading: var(--inter-navy);
-  --mesh-a: rgba(12, 27, 77, 0.1);
-  --mesh-b: rgba(212, 169, 62, 0.16);
-  --mesh-c: rgba(2, 132, 199, 0.09);
-  --glass-border: rgba(255, 255, 255, 0.6);
+  --mesh-a: rgba(12, 27, 77, 0.3);
+  --mesh-b: rgba(212, 169, 62, 0.34);
+  --mesh-c: rgba(2, 132, 199, 0.26);
+  --glass-border: rgba(255, 255, 255, 0.7);
 }
 
 body {
@@ -145,7 +144,7 @@ body::before {
     radial-gradient(circle at 20% 20%, var(--mesh-a) 0%, transparent 50%),
     radial-gradient(circle at 85% 25%, var(--mesh-b) 0%, transparent 45%),
     radial-gradient(circle at 50% 85%, var(--mesh-c) 0%, transparent 55%);
-  filter: blur(60px);
+  filter: blur(50px);
   animation: mesh-drift 30s ease-in-out infinite alternate;
   pointer-events: none;
 }
