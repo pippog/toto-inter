@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { Check } from "lucide-react";
 import { ScorerPlayerField } from "@/components/scorer-player-field";
 import { setManualResult } from "../../actions";
 
@@ -9,6 +10,7 @@ type MatchResultFields = {
   awayScore: number | null;
   firstScorerKind: string | null;
   firstScorerPlayerName: string | null;
+  opponentLogoUrl: string | null;
 };
 
 export function ResultForm({
@@ -65,6 +67,17 @@ export function ResultForm({
         <span className="pb-1.5 text-xs text-zinc-500">(risultato ai 90&apos;)</span>
       </div>
 
+      <label className="flex flex-col gap-1 text-sm">
+        Logo avversario (URL, opzionale)
+        <input
+          name="opponentLogoUrl"
+          type="url"
+          defaultValue={match.opponentLogoUrl ?? ""}
+          placeholder="https://…"
+          className="rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
+        />
+      </label>
+
       <fieldset className="flex flex-col gap-2">
         <legend className="text-sm text-zinc-500">
           Primo marcatore dell&apos;Inter
@@ -107,6 +120,12 @@ export function ResultForm({
       </fieldset>
 
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {state?.success && (
+        <p className="flex items-center gap-1.5 text-sm font-medium text-accent-teal [animation:rise-in_0.3s_ease-out_both]">
+          <Check className="size-4" />
+          Risultato salvato e punteggi ricalcolati.
+        </p>
+      )}
 
       <button
         type="submit"

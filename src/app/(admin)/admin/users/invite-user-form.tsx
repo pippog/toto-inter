@@ -11,7 +11,7 @@ export function InviteUserForm() {
       action={action}
       className="flex flex-col gap-3 rounded-2xl bg-surface shadow-card p-4"
     >
-      <h2 className="font-medium text-inter-navy">Invita un giocatore</h2>
+      <h2 className="font-medium text-heading">Invita un giocatore</h2>
       <div className="flex gap-2">
         <input
           name="name"

@@ -11,7 +11,7 @@ export function CreateSeasonForm() {
       action={action}
       className="flex flex-col gap-3 rounded-2xl bg-surface shadow-card p-4"
     >
-      <h2 className="font-medium text-inter-navy">Nuova stagione</h2>
+      <h2 className="font-medium text-heading">Nuova stagione</h2>
       <p className="text-xs text-zinc-500">
         Diventa subito la stagione attiva: le partite e le classifiche future
         fanno riferimento a lei, e streak/classifica ripartono da zero.

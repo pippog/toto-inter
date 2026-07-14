@@ -8,7 +8,7 @@ import type { Competition, ScorerKind } from "@/generated/prisma/enums";
 
 const DEADLINE_MINUTES_BEFORE_KICKOFF = 5;
 
-export type ActionState = { error?: string } | undefined;
+export type ActionState = { error?: string; success?: boolean } | undefined;
 
 export async function createMatch(
   _prevState: ActionState,
@@ -33,12 +33,14 @@ export async function createMatch(
   if (!opponent) {
     return { error: "Inserisci l'avversario." };
   }
+  const opponentLogoUrl = String(formData.get("opponentLogoUrl") ?? "").trim() || null;
 
   await prisma.match.create({
     data: {
       seasonId: season.id,
       competition: formData.get("competition") as Competition,
       opponent,
+      opponentLogoUrl,
       isHome: formData.get("isHome") === "on",
       kickoffAt,
       predictionDeadlineAt,
@@ -46,6 +48,7 @@ export async function createMatch(
   });
 
   revalidatePath("/admin/matches");
+  return { success: true };
 }
 
 export async function setManualResult(
@@ -75,6 +78,7 @@ export async function setManualResult(
   if (scorerKind === "PLAYER_GOAL" && !scorerPlayerName) {
     return { error: "Inserisci il nome del giocatore che segna per l'Inter." };
   }
+  const opponentLogoUrl = String(formData.get("opponentLogoUrl") ?? "").trim() || null;
 
   await prisma.match.update({
     where: { id: matchId },
@@ -83,6 +87,7 @@ export async function setManualResult(
       awayScore,
       firstScorerKind: scorerKind,
       firstScorerPlayerName: scorerPlayerName,
+      opponentLogoUrl,
       resultSource: "MANUAL",
     },
   });
@@ -94,4 +99,5 @@ export async function setManualResult(
   revalidatePath(`/matches/${matchId}`);
   revalidatePath("/matches");
   revalidatePath("/leaderboard");
+  return { success: true };
 }

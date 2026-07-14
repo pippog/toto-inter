@@ -8,6 +8,7 @@ import { CompetitionBadge } from "@/components/competition-badge";
 import { StatTile } from "@/components/stat-tile";
 import { Timeline, TimelineItem } from "@/components/timeline";
 import { Avatar } from "@/components/avatar";
+import { TeamBadge } from "@/components/team-badge";
 
 const SCORER_LABELS: Record<string, string> = {
   PLAYER_GOAL: "Giocatore",
@@ -53,6 +54,7 @@ export default async function MatchDetailPage({
   const wRes = allScores.filter((s) => s.resCorrect).length;
   const wMarcatore = allScores.filter((s) => s.marcatoreCorrect).length;
   const totalScored = allScores.length;
+  const scoresByUserId = new Map(allScores.map((s) => [s.userId, s]));
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 md:p-8">
@@ -66,8 +68,22 @@ export default async function MatchDetailPage({
             })}
           </span>
         </div>
-        <h1 className="text-xl font-semibold text-heading">
-          Inter {match.isHome ? "-" : "@"} {match.opponent}
+        <h1 className="flex items-center gap-2 text-xl font-semibold text-heading">
+          <TeamBadge
+            label={match.isHome ? "Inter" : match.opponent}
+            variant={match.isHome ? "inter" : "opponent"}
+            logoUrl={match.opponentLogoUrl}
+            size={7}
+          />
+          {match.isHome ? "Inter" : match.opponent}
+          <span className="text-sm font-normal text-zinc-400">{match.isHome ? "-" : "@"}</span>
+          {match.isHome ? match.opponent : "Inter"}
+          <TeamBadge
+            label={match.isHome ? match.opponent : "Inter"}
+            variant={match.isHome ? "opponent" : "inter"}
+            logoUrl={match.opponentLogoUrl}
+            size={7}
+          />
         </h1>
       </div>
 
@@ -149,26 +165,53 @@ export default async function MatchDetailPage({
 
       {locked && visiblePredictions.length > 0 && (
         <div className="flex flex-col gap-3 rounded-2xl bg-surface p-4 shadow-card">
-          <h2 className="font-medium text-heading">Pronostici di tutti</h2>
+          <h2 className="font-medium text-heading">
+            {match.status === "FINISHED" ? "Dettaglio della partita" : "Pronostici di tutti"}
+          </h2>
           <Timeline>
-            {visiblePredictions.map((p, i) => (
-              <TimelineItem
-                key={p.id}
-                last={i === visiblePredictions.length - 1}
-                title={
-                  <span className="flex items-center gap-2">
-                    <Avatar name={p.user.name} size={20} />
-                    {p.user.name}
-                  </span>
-                }
-                subtitle={`Marcatore: ${scorerLabel(p.predictedScorerKind, p.predictedScorerPlayerName)}`}
-                trailing={
-                  <span className="font-semibold text-heading">
-                    {p.predictedHomeScore}-{p.predictedAwayScore}
-                  </span>
-                }
-              />
-            ))}
+            {visiblePredictions.map((p, i) => {
+              const score = scoresByUserId.get(p.userId);
+              return (
+                <TimelineItem
+                  key={p.id}
+                  last={i === visiblePredictions.length - 1}
+                  tone={score ? (score.resCorrect || score.marcatoreCorrect ? "success" : "muted") : "default"}
+                  title={
+                    <span className="flex items-center gap-2">
+                      <Avatar name={p.user.name} size={20} />
+                      {p.user.name}
+                    </span>
+                  }
+                  subtitle={
+                    <span className="flex flex-col gap-0.5">
+                      <span>Marcatore: {scorerLabel(p.predictedScorerKind, p.predictedScorerPlayerName)}</span>
+                      {score && (
+                        <span className="flex items-center gap-2 text-xs">
+                          <span className={score.resCorrect ? "text-accent-teal" : "text-zinc-400"}>
+                            {score.resCorrect ? "✓" : "✗"} risultato
+                          </span>
+                          <span className={score.marcatoreCorrect ? "text-accent-teal" : "text-zinc-400"}>
+                            {score.marcatoreCorrect ? "✓" : "✗"} marcatore
+                          </span>
+                        </span>
+                      )}
+                    </span>
+                  }
+                  trailing={
+                    <span className="flex flex-col items-end gap-0.5">
+                      <span className="font-semibold text-heading">
+                        {p.predictedHomeScore}-{p.predictedAwayScore}
+                      </span>
+                      {score && (
+                        <span className="text-xs font-medium text-zinc-500">
+                          {Number(score.totalPoints).toFixed(2)} pt
+                        </span>
+                      )}
+                    </span>
+                  }
+                />
+              );
+            })}
           </Timeline>
         </div>
       )}

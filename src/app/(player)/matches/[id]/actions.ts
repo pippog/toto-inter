@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import type { ScorerKind } from "@/generated/prisma/enums";
 
-export type PredictionFormState = { error?: string } | undefined;
+export type PredictionFormState = { error?: string; success?: boolean } | undefined;
 
 export async function submitPrediction(
   matchId: string,
@@ -66,4 +66,5 @@ export async function submitPrediction(
 
   revalidatePath(`/matches/${matchId}`);
   revalidatePath("/matches");
+  return { success: true };
 }

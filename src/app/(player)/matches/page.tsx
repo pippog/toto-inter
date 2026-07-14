@@ -36,6 +36,7 @@ export default async function MatchesPage() {
       competition: match.competition,
       isHome: match.isHome,
       opponent: match.opponent,
+      opponentLogoUrl: match.opponentLogoUrl,
       homeScore: match.homeScore,
       awayScore: match.awayScore,
       kickoffAt: match.kickoffAt,

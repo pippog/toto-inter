@@ -1,7 +1,8 @@
-import { Crown } from "lucide-react";
+import { Crown, Trophy } from "lucide-react";
 import { getActiveSeason } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { Avatar } from "@/components/avatar";
+import { EmptyState } from "@/components/empty-state";
 
 const PODIUM_STYLE = [
   { order: "md:order-2", height: "h-28", ring: "ring-inter-gold", badge: "bg-inter-gold text-inter-navy-dark" },
@@ -52,7 +53,8 @@ export default async function LeaderboardPage() {
           {top3.map((s, i) => (
             <div
               key={s.id}
-              className={`flex flex-col items-center gap-2 ${PODIUM_STYLE[i].order}`}
+              className={`flex flex-col items-center gap-2 opacity-0 ${PODIUM_STYLE[i].order}`}
+              style={{ animation: "rise-in 0.5s ease-out forwards", animationDelay: `${i * 100}ms` }}
             >
               {i === 0 && <Crown className="size-5 text-inter-gold" />}
               <div className={`rounded-full ring-2 ${PODIUM_STYLE[i].ring}`}>
@@ -102,7 +104,9 @@ export default async function LeaderboardPage() {
           </li>
         ))}
         {standings.length === 0 && (
-          <li className="text-sm text-zinc-500">Nessun punteggio ancora registrato.</li>
+          <li>
+            <EmptyState icon={Trophy} message="Nessun punteggio ancora registrato." />
+          </li>
         )}
       </ol>
     </div>

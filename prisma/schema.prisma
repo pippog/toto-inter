@@ -90,6 +90,7 @@ model Match {
   season                Season        @relation(fields: [seasonId], references: [id])
   competition           Competition
   opponent              String
+  opponentLogoUrl       String?
   isHome                Boolean
   kickoffAt             DateTime
   predictionDeadlineAt  DateTime

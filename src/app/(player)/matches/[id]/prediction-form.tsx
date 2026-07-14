@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, Check } from "lucide-react";
 import { ScorerPlayerField } from "@/components/scorer-player-field";
 import { submitPrediction } from "./actions";
 
@@ -140,6 +140,12 @@ export function PredictionForm({
       </fieldset>
 
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {state?.success && (
+        <p className="flex items-center gap-1.5 text-sm font-medium text-accent-teal [animation:rise-in_0.3s_ease-out_both]">
+          <Check className="size-4" />
+          Pronostico salvato.
+        </p>
+      )}
 
       <button
         type="submit"

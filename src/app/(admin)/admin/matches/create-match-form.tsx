@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { Check } from "lucide-react";
 import { createMatch } from "./actions";
 
 const COMPETITIONS = [
@@ -20,7 +21,7 @@ export function CreateMatchForm() {
       action={action}
       className="flex flex-col gap-3 rounded-2xl bg-surface shadow-card p-4"
     >
-      <h2 className="font-medium text-inter-navy">Nuova partita</h2>
+      <h2 className="font-medium text-heading">Nuova partita</h2>
 
       <label className="flex flex-col gap-1 text-sm">
         Avversario
@@ -34,6 +35,16 @@ export function CreateMatchForm() {
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="isHome" defaultChecked />
         Inter in casa
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Logo avversario (URL, opzionale)
+        <input
+          name="opponentLogoUrl"
+          type="url"
+          placeholder="https://…"
+          className="rounded-lg border border-black/10 bg-transparent px-2 py-1 focus:border-inter-navy focus:outline-none"
+        />
       </label>
 
       <label className="flex flex-col gap-1 text-sm">
@@ -65,6 +76,12 @@ export function CreateMatchForm() {
       </p>
 
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {state?.success && (
+        <p className="flex items-center gap-1.5 text-sm font-medium text-accent-teal [animation:rise-in_0.3s_ease-out_both]">
+          <Check className="size-4" />
+          Partita creata.
+        </p>
+      )}
 
       <button
         type="submit"

@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { connection } from "next/server";
-import { Trophy, CalendarDays, ArrowRight, Flame, Target, Hash } from "lucide-react";
+import { Trophy, CalendarDays, ArrowRight, Flame, Target, Hash, TrendingUp, History } from "lucide-react";
 import { getCurrentUser, getActiveSeason } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { Avatar } from "@/components/avatar";
 import { StatTile } from "@/components/stat-tile";
+import { EmptyState } from "@/components/empty-state";
+import { Timeline, TimelineItem } from "@/components/timeline";
+import { PointsChart } from "@/components/points-chart";
 import { competitionLabel } from "@/lib/competition";
 
 export default async function HomePage() {
@@ -46,6 +49,23 @@ export default async function HomePage() {
   const predictedUpcoming = upcomingMatches.filter((m) => m.predictions.length > 0).length;
   const matchdayCompletion =
     upcomingMatches.length > 0 ? Math.round((predictedUpcoming / upcomingMatches.length) * 100) : 0;
+
+  const myMatchScores = await prisma.matchScore.findMany({
+    where: { userId: user.id, match: { seasonId: season.id } },
+    include: { match: true },
+    orderBy: { match: { kickoffAt: "asc" } },
+  });
+
+  const chartData = myMatchScores.reduce<{ label: string; points: number }[]>((acc, ms) => {
+    const previousTotal = acc.length > 0 ? acc[acc.length - 1].points : 0;
+    acc.push({
+      label: ms.match.opponent.slice(0, 3).toUpperCase(),
+      points: previousTotal + Number(ms.totalPoints),
+    });
+    return acc;
+  }, []);
+
+  const recentMatches = [...myMatchScores].reverse().slice(0, 4);
 
   const stats = [
     { label: "Posizione", value: myRank > 0 ? `#${myRank}` : "—", icon: Hash, accent: "gold" as const },
@@ -139,7 +159,9 @@ export default async function HomePage() {
               </li>
             ))}
             {standings.length === 0 && (
-              <li className="text-sm text-zinc-500">Nessun punteggio ancora registrato.</li>
+              <li>
+                <EmptyState icon={Trophy} message="Nessun punteggio ancora registrato." compact />
+              </li>
             )}
           </ol>
         </section>
@@ -186,11 +208,54 @@ export default async function HomePage() {
               );
             })}
             {upcomingMatches.length === 0 && (
-              <li className="text-sm text-zinc-500">Nessuna partita in calendario.</li>
+              <li>
+                <EmptyState icon={CalendarDays} message="Nessuna partita in calendario." compact />
+              </li>
             )}
           </ul>
         </section>
       </div>
+
+      {chartData.length > 0 && (
+        <section className="mx-auto flex w-full max-w-4xl flex-col gap-3 rounded-2xl bg-surface p-5 shadow-card">
+          <h2 className="flex items-center gap-2 font-semibold text-heading">
+            <TrendingUp className="size-[18px]" />
+            Andamento punti
+          </h2>
+          <PointsChart data={chartData} />
+        </section>
+      )}
+
+      <section className="mx-auto flex w-full max-w-4xl flex-col gap-3 rounded-2xl bg-surface p-5 shadow-card">
+        <h2 className="flex items-center gap-2 font-semibold text-heading">
+          <History className="size-[18px]" />
+          Ultime partite giocate
+        </h2>
+        {recentMatches.length > 0 ? (
+          <Timeline>
+            {recentMatches.map((ms, i) => (
+              <TimelineItem
+                key={ms.id}
+                last={i === recentMatches.length - 1}
+                tone={ms.resCorrect || ms.marcatoreCorrect ? "success" : "muted"}
+                title={
+                  <Link href={`/matches/${ms.matchId}`} className="hover:underline">
+                    Inter {ms.match.isHome ? "-" : "@"} {ms.match.opponent}
+                  </Link>
+                }
+                subtitle={`${ms.match.homeScore}-${ms.match.awayScore} — ${competitionLabel(ms.match.competition)}`}
+                trailing={
+                  <span className="font-semibold text-heading">
+                    {Number(ms.totalPoints).toFixed(2)} pt
+                  </span>
+                }
+              />
+            ))}
+          </Timeline>
+        ) : (
+          <EmptyState icon={History} message="Nessuna partita ancora giocata questa stagione." compact />
+        )}
+      </section>
     </div>
   );
 }

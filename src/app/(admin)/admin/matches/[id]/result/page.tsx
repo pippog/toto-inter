@@ -24,7 +24,7 @@ export default async function MatchResultPage({
 
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col gap-6 p-8">
-      <h1 className="text-xl font-semibold text-inter-navy">
+      <h1 className="text-xl font-semibold text-heading">
         Risultato — Inter {match.isHome ? "-" : "@"} {match.opponent}
       </h1>
       <p className="text-sm text-zinc-500">

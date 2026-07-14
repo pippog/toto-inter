@@ -2,13 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { CalendarX } from "lucide-react";
 import { CompetitionBadge } from "@/components/competition-badge";
+import { TeamBadge } from "@/components/team-badge";
+import { EmptyState } from "@/components/empty-state";
 
 type MatchRow = {
   id: string;
   competition: string;
   isHome: boolean;
   opponent: string;
+  opponentLogoUrl: string | null;
   homeScore: number | null;
   awayScore: number | null;
   kickoffAt: Date;
@@ -23,20 +27,6 @@ const STATUS_STYLES: Record<string, string> = {
   Pronosticato: "bg-inter-navy-soft text-inter-navy",
   "Da pronosticare": "bg-inter-gold-soft text-inter-navy-dark",
 };
-
-function TeamBadge({ label, variant }: { label: string; variant: "inter" | "opponent" }) {
-  return (
-    <span
-      className={`flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-        variant === "inter"
-          ? "bg-gradient-to-br from-inter-navy to-inter-black text-white"
-          : "bg-zinc-100 text-zinc-500"
-      }`}
-    >
-      {variant === "inter" ? "IN" : label.slice(0, 2).toUpperCase()}
-    </span>
-  );
-}
 
 const TABS = [
   { key: "all", label: "Tutte" },
@@ -90,7 +80,11 @@ export function MatchesList({ matches }: { matches: MatchRow[] }) {
 
                 <div className="flex items-center justify-between">
                   <div className="flex flex-1 items-center gap-2">
-                    <TeamBadge label={homeName} variant={match.isHome ? "inter" : "opponent"} />
+                    <TeamBadge
+                      label={homeName}
+                      variant={match.isHome ? "inter" : "opponent"}
+                      logoUrl={match.opponentLogoUrl}
+                    />
                     <span className="truncate text-sm font-medium">{homeName}</span>
                   </div>
 
@@ -104,7 +98,11 @@ export function MatchesList({ matches }: { matches: MatchRow[] }) {
 
                   <div className="flex flex-1 items-center justify-end gap-2">
                     <span className="truncate text-sm font-medium">{awayName}</span>
-                    <TeamBadge label={awayName} variant={!match.isHome ? "inter" : "opponent"} />
+                    <TeamBadge
+                      label={awayName}
+                      variant={!match.isHome ? "inter" : "opponent"}
+                      logoUrl={match.opponentLogoUrl}
+                    />
                   </div>
                 </div>
 
@@ -119,8 +117,8 @@ export function MatchesList({ matches }: { matches: MatchRow[] }) {
           );
         })}
         {filtered.length === 0 && (
-          <li className="rounded-2xl bg-surface p-6 text-center text-sm text-zinc-500 shadow-card">
-            Nessuna partita in questa categoria.
+          <li>
+            <EmptyState icon={CalendarX} message="Nessuna partita in questa categoria." />
           </li>
         )}
       </ul>
