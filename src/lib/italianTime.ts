@@ -45,3 +45,21 @@ export function formatItalianDateTime(date: Date): string {
     timeZone: ITALY_TZ,
   });
 }
+
+// Inverso di formatItalianDateTime: produce il valore "YYYY-MM-DDTHH:mm"
+// che un <input type="datetime-local"> si aspetta come defaultValue, così
+// riaprendo il form di modifica l'admin vede l'orario italiano corretto
+// (non quello del fuso del server).
+export function toItalianDateTimeLocalValue(date: Date): string {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: ITALY_TZ,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(date);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "00";
+  return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}`;
+}

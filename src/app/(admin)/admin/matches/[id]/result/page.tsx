@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { ResultForm } from "./result-form";
 import { LogoForm } from "./logo-form";
+import { ScheduleForm } from "./schedule-form";
 
 export default async function MatchResultPage({
   params,
@@ -31,6 +32,7 @@ export default async function MatchResultPage({
       <p className="text-sm text-zinc-500">
         Fonte attuale: {match.resultSource} — Stato: {match.status}
       </p>
+      <ScheduleForm matchId={id} kickoffAt={match.kickoffAt} />
       <LogoForm matchId={id} opponentLogoUrl={match.opponentLogoUrl} />
       <ResultForm
         matchId={id}

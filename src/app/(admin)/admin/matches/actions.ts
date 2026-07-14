@@ -121,3 +121,32 @@ export async function updateOpponentLogo(
   revalidatePath("/matches");
   return { success: true };
 }
+
+export async function updateMatchSchedule(
+  matchId: string,
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  await requireAdmin();
+
+  const kickoffAtRaw = String(formData.get("kickoffAt"));
+  const kickoffAt = parseItalianLocalDateTime(kickoffAtRaw);
+  if (Number.isNaN(kickoffAt.getTime())) {
+    return { error: "Data/ora del calcio d'inizio non valida." };
+  }
+  const predictionDeadlineAt = new Date(
+    kickoffAt.getTime() - DEADLINE_MINUTES_BEFORE_KICKOFF * 60_000,
+  );
+
+  await prisma.match.update({
+    where: { id: matchId },
+    data: { kickoffAt, predictionDeadlineAt },
+  });
+
+  revalidatePath(`/admin/matches/${matchId}/result`);
+  revalidatePath("/admin/matches");
+  revalidatePath(`/matches/${matchId}`);
+  revalidatePath("/matches");
+  revalidatePath("/");
+  return { success: true };
+}
