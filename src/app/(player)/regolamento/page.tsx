@@ -91,16 +91,20 @@ export default function RegolamentoPage() {
       <section className="flex flex-col gap-2 rounded-2xl bg-surface shadow-card p-4">
         <h2 className="font-medium text-heading">Esempio</h2>
         <p>
-          Siete in 4 a pronosticare. Indovini sia il risultato (in 2 su 4) sia il
-          marcatore (unico a indovinarlo), e sei alla tua 3ª partita di fila indovinata
-          sul risultato (streak marcatore azzerato la partita precedente):
+          Siete in 4 a pronosticare quella partita. Indovini sia il risultato (in 2 su
+          4 a indovinarlo) sia il marcatore (l&apos;unico a indovinarlo). È la tua 3ª
+          partita di fila con il risultato giusto, mentre sul marcatore avevi sbagliato
+          la partita precedente — quindi questa è la 1ª partita della tua nuova
+          striscia sul marcatore, non ancora sufficiente per un bonus (che parte da 2
+          di fila):
         </p>
         <ul className="ml-4 list-disc">
-          <li>Risultato: 1/2 = 0.5 pt</li>
-          <li>Marcatore: 1/1 = 1 pt</li>
+          <li>Risultato: 1 punto diviso tra i 2 che lo indovinano = 0.5 pt</li>
+          <li>Marcatore: 1 punto diviso tra l&apos;unico che lo indovina = 1 pt</li>
           <li>Base B = 0.5 + 1 = 1.5 pt</li>
-          <li>Bonus combo (+50% su B) = 0.75 pt</li>
-          <li>Bonus streak risultato (3 di fila, +60% su B) = 0.9 pt — streak marcatore a 0%</li>
+          <li>Bonus combo, hai indovinato entrambi (+50% su B) = 0.75 pt</li>
+          <li>Bonus streak risultato, 3 di fila (+60% su B) = 0.9 pt</li>
+          <li>Bonus streak marcatore, 1 di fila: 0% (nessun bonus sotto le 2 di fila)</li>
           <li>
             <strong>Totale: 1.5 + 0.75 + 0.9 = 3.15 pt</strong>
           </li>
@@ -111,9 +115,18 @@ export default function RegolamentoPage() {
         <h2 className="font-medium text-heading">Riservatezza dei pronostici</h2>
         <p>
           Il tuo pronostico è <strong>visibile solo a te</strong> fino al deadline (5
-          minuti prima del calcio d&apos;inizio) — vale anche per l&apos;admin, che non
-          può vedere i pronostici altrui in anticipo. Dopo il deadline, i pronostici di
-          tutti per quella partita diventano visibili insieme.
+          minuti prima del calcio d&apos;inizio). Dopo il deadline, i pronostici di
+          tutti per quella partita diventano visibili insieme, uno accanto all&apos;altro.
+        </p>
+      </section>
+
+      <section className="flex flex-col gap-2">
+        <h2 className="font-medium text-heading">Quando compaiono le partite</h2>
+        <p>
+          Le partite dell&apos;Inter entrano di solito in calendario in automatico
+          qualche giorno prima del calcio d&apos;inizio. Se una partita che sai essere
+          in programma non compare ancora, è solo perché è troppo lontana nel tempo:
+          verrà aggiunta comunque in tempo utile per pronosticare.
         </p>
       </section>
 
