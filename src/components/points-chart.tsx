@@ -28,7 +28,7 @@ export function PointsChart({ data }: { data: { label: string; points: number }[
             color: "var(--heading)",
           }}
           labelStyle={{ color: "var(--heading)", fontWeight: 600 }}
-          formatter={(value: number) => [`${value.toFixed(2)} pt`, "Punti cumulati"]}
+          formatter={(value) => [`${Number(value).toFixed(2)} pt`, "Punti cumulati"]}
         />
         <Area
           type="monotone"
