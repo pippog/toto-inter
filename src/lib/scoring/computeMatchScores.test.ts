@@ -147,11 +147,12 @@ describe("computeMatchScores", () => {
     expect(u1.resStreakLenAfter).toBe(4);
     expect(u1.resStreakBonusPct.toNumber()).toBeCloseTo(1.0);
     // Base = 1 (risultato) + 1 (marcatore, unico a indovinare) = 2.
-    // Combo (+50%) + streak risultato (+100%) + streak marcatore (0%, primo centro).
+    // Combo (+50% su entrambe) + streak risultato (+100% solo su resPoints,
+    // il marcatore e' al primo centro quindi 0% sulla sua parte).
     expect(u1.basePoints.toNumber()).toBeCloseTo(2);
     expect(u1.comboBonus.toNumber()).toBeCloseTo(1); // 0.5 * 2
-    expect(u1.streakBonusPoints.toNumber()).toBeCloseTo(2); // (1.0 + 0) * 2
-    expect(u1.totalPoints.toNumber()).toBeCloseTo(5); // 2 + 1 + 2
+    expect(u1.streakBonusPoints.toNumber()).toBeCloseTo(1); // 1.0*resPoints(1) + 0*marcatorePoints(1)
+    expect(u1.totalPoints.toNumber()).toBeCloseTo(4); // 2 + 1 + 1
   });
 
   it("pronostico mancante azzera lo streak anche senza una riga precedente esplicita", () => {

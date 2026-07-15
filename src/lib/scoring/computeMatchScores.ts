@@ -66,9 +66,12 @@ export function computeMatchScores(
 
     const resStreakBonusPct = streakBonusPct(resStreakLenAfter);
     const marcatoreStreakBonusPct = streakBonusPct(marcatoreStreakLenAfter);
+    // Ciascuna percentuale si applica solo ai punti della propria componente,
+    // non al base combinato: uno streak sul risultato non deve gonfiare
+    // anche il marcatore preso lo stesso giorno (e viceversa).
     const streakBonusPoints = resStreakBonusPct
-      .plus(marcatoreStreakBonusPct)
-      .times(basePoints);
+      .times(resPoints)
+      .plus(marcatoreStreakBonusPct.times(marcatorePoints));
 
     const totalPoints = basePoints.plus(comboBonus).plus(streakBonusPoints);
 
@@ -99,13 +102,14 @@ export function computeMatchScores(
 
 // Forma fattorizzata equivalente a B + C + R, usata solo come cross-check
 // nei test per intercettare eventuali errori algebrici nella scomposizione
-// additiva sopra.
+// additiva sopra. Il combo (+50%) si applica a entrambe le componenti
+// insieme, ma lo streak si applica a ciascuna componente separatamente:
+// il moltiplicatore di resPoints e quello di marcatorePoints possono
+// differire, quindi niente fattore comune su basePoints.
 export function totalPointsFactoredForm(result: MatchScoreResult): Decimal {
   const comboFlag = result.resCorrect && result.marcatoreCorrect ? 1 : 0;
-  return result.basePoints.times(
-    new Decimal(1)
-      .plus(HALF.times(comboFlag))
-      .plus(result.resStreakBonusPct)
-      .plus(result.marcatoreStreakBonusPct),
-  );
+  const comboMultiplier = new Decimal(1).plus(HALF.times(comboFlag));
+  return result.resPoints
+    .times(comboMultiplier.plus(result.resStreakBonusPct))
+    .plus(result.marcatorePoints.times(comboMultiplier.plus(result.marcatoreStreakBonusPct)));
 }
