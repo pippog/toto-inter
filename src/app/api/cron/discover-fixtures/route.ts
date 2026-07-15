@@ -3,6 +3,10 @@ import { isAuthorizedCronRequest } from "@/lib/cronAuth";
 import { getActiveSeason } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { apiFootballProvider, INTER_TEAM_ID } from "@/lib/football-provider/apiFootballProvider";
+import { sendEmail } from "@/lib/mailer";
+import { competitionLabel } from "@/lib/competition";
+import { formatItalianDateTime } from "@/lib/italianTime";
+import type { Competition } from "@/generated/prisma/enums";
 
 // Il piano Free di API-Football accetta `date=` solo entro una finestra
 // mobile di pochi giorni attorno a oggi (verificato in produzione): oltre
@@ -12,11 +16,13 @@ const DISCOVERY_WINDOW_DAYS = 3;
 const PREDICTION_DEADLINE_MINUTES_BEFORE_KICKOFF = 5;
 
 // Tolleranza per "adottare" una partita creata a mano invece di duplicarla
-// (vedi sotto): abbastanza larga da assorbire un'imprecisione nell'orario
-// inserito a mano, ma l'Inter non gioca mai due volte contro lo stesso
-// avversario a poche ore di distanza nella stessa stagione, quindi non
-// rischia di agganciare la partita sbagliata.
-const MANUAL_MATCH_ADOPTION_TOLERANCE_MS = 12 * 60 * 60 * 1000;
+// (vedi sotto): deve assorbire anche uno spostamento TV (es. da domenica
+// 18:00 a venerdì sera o lunedì sera), non solo un'imprecisione di orario.
+// La sicurezza del match non dipende da questa finestra ma dalla coppia
+// stagione+avversario: l'Inter non gioca mai due volte contro lo stesso
+// avversario in campionato a pochi giorni di distanza, quindi allargarla
+// non rischia di agganciare la partita sbagliata.
+const MANUAL_MATCH_ADOPTION_TOLERANCE_MS = 5 * 24 * 60 * 60 * 1000;
 
 // Scopre le prossime partite dell'Inter e crea le righe Match da confermare
 // (mai risultati, solo calendario — vedi piano). Idempotente: identifica le
@@ -41,6 +47,11 @@ export async function GET(request: Request) {
   let created = 0;
   let updated = 0;
   let adopted = 0;
+
+  // Solo le partite nuove/agganciate finiscono nella mail di conferma
+  // all'admin: un aggiornamento di orario su una partita già nota non è
+  // un evento da controllare a mano quanto le prime due.
+  const notifyMatches: { opponent: string; kickoffAt: Date; competition: Competition; kind: "created" | "adopted" }[] = [];
 
   for (const fx of fixtures) {
     const deadline = new Date(
@@ -85,6 +96,7 @@ export async function GET(request: Request) {
         },
       });
       adopted++;
+      notifyMatches.push({ opponent: fx.opponent, kickoffAt: fx.kickoffAt, competition: fx.competition, kind: "adopted" });
       continue;
     }
 
@@ -100,6 +112,22 @@ export async function GET(request: Request) {
       },
     });
     created++;
+    notifyMatches.push({ opponent: fx.opponent, kickoffAt: fx.kickoffAt, competition: fx.competition, kind: "created" });
+  }
+
+  if (notifyMatches.length > 0 && process.env.ADMIN_EMAIL) {
+    const rows = notifyMatches
+      .map(
+        (m) =>
+          `<li>${m.kind === "created" ? "🆕 Nuova" : "🔗 Agganciata"}: ${m.opponent} — ` +
+          `${competitionLabel(m.competition)} — ${formatItalianDateTime(m.kickoffAt)}</li>`,
+      )
+      .join("");
+    await sendEmail({
+      to: process.env.ADMIN_EMAIL,
+      subject: `🤖 Discovery partite: ${created} nuove, ${adopted} agganciate`,
+      html: `<p>Il cron di scoperta partite ha trovato:</p><ul>${rows}</ul>`,
+    });
   }
 
   return NextResponse.json({ found: fixtures.length, created, updated, adopted, squadSync });

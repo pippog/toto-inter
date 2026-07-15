@@ -107,6 +107,10 @@ model Match {
   firstScorerPlayerName String?
 
   scoringComputedAt     DateTime?
+  // Segna quando e' partito il promemoria "pronostico mancante" per questa
+  // partita, cosi' il cron (che gira ogni 15-30 min) non lo rimanda piu'
+  // volte durante la finestra delle 2 ore prima del fischio d'inizio.
+  reminderSentAt        DateTime?
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
 

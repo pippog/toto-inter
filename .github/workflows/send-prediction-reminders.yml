@@ -1,0 +1,18 @@
+name: Send prediction reminders
+
+on:
+  schedule:
+    # Ogni 15 min: la finestra controllata dal cron è larga 1 ora (90-150 min
+    # prima del fischio d'inizio) apposta per assorbire i ritardi tipici
+    # dello scheduler di GitHub Actions senza perdere una partita.
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call send-prediction-reminders endpoint
+        run: |
+          curl -sf -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://amaralgame.vercel.app/api/cron/send-prediction-reminders
