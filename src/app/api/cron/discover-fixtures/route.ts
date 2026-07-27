@@ -24,6 +24,32 @@ const PREDICTION_DEADLINE_MINUTES_BEFORE_KICKOFF = 5;
 // non rischia di agganciare la partita sbagliata.
 const MANUAL_MATCH_ADOPTION_TOLERANCE_MS = 5 * 24 * 60 * 60 * 1000;
 
+// Confronto robusto tra il nome avversario inserito a mano e quello
+// ufficiale del provider (es. "Karlsruhe" vs "Karlsruher SC"): un `equals`
+// esatto fallisce su sigle societarie o abbreviazioni, quindi si normalizza
+// (accenti, punteggiatura, sigle societarie comuni) e si accetta anche un
+// contenimento in un senso o nell'altro.
+const CLUB_SUFFIXES = /\b(sc|fc|ac|as|us|cf|ssc|calcio|club|cd|sv|fk|bc)\b/g;
+
+const DIACRITICS_PATTERN = new RegExp("[̀-ͯ]", "g");
+
+function normalizeOpponentName(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(DIACRITICS_PATTERN, "")
+    .toLowerCase()
+    .replace(CLUB_SUFFIXES, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function isSameOpponent(a: string, b: string): boolean {
+  const na = normalizeOpponentName(a);
+  const nb = normalizeOpponentName(b);
+  if (!na || !nb) return false;
+  return na === nb || na.includes(nb) || nb.includes(na);
+}
+
 // Scopre le prossime partite dell'Inter e crea le righe Match da confermare
 // (mai risultati, solo calendario — vedi piano). Idempotente: identifica le
 // partite già note tramite external_ref (unique), aggiornando kickoff_at
@@ -75,13 +101,13 @@ export async function GET(request: Request) {
       where: {
         seasonId: season.id,
         externalRef: null,
-        opponent: { equals: fx.opponent, mode: "insensitive" },
       },
     });
     const adoptable = manualMatches.find(
       (m) =>
+        isSameOpponent(m.opponent, fx.opponent) &&
         Math.abs(m.kickoffAt.getTime() - fx.kickoffAt.getTime()) <=
-        MANUAL_MATCH_ADOPTION_TOLERANCE_MS,
+          MANUAL_MATCH_ADOPTION_TOLERANCE_MS,
     );
 
     if (adoptable) {
@@ -93,6 +119,9 @@ export async function GET(request: Request) {
           isHome: fx.isHome,
           kickoffAt: fx.kickoffAt,
           predictionDeadlineAt: deadline,
+          // Il logo inserito a mano vince se già presente: il sync non deve
+          // sovrascrivere una scelta manuale, solo colmare un buco.
+          ...(adoptable.opponentLogoUrl ? {} : { opponentLogoUrl: fx.opponentLogoUrl }),
         },
       });
       adopted++;
@@ -105,6 +134,7 @@ export async function GET(request: Request) {
         seasonId: season.id,
         competition: fx.competition,
         opponent: fx.opponent,
+        opponentLogoUrl: fx.opponentLogoUrl,
         isHome: fx.isHome,
         kickoffAt: fx.kickoffAt,
         predictionDeadlineAt: deadline,

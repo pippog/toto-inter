@@ -55,7 +55,10 @@ export const apiFootballProvider: FootballDataProvider = {
       let response: Array<{
         fixture: { id: number; date: string; status: { short: string } };
         league: { id: number };
-        teams: { home: { id: number; name: string }; away: { id: number; name: string } };
+        teams: {
+          home: { id: number; name: string; logo: string | null };
+          away: { id: number; name: string; logo: string | null };
+        };
       }>;
       try {
         response = (await apiGet(`/fixtures?date=${toDateParam(date)}`)) as typeof response;
@@ -73,10 +76,12 @@ export const apiFootballProvider: FootballDataProvider = {
         if (!isHome && !isAway) continue;
         if (!["NS", "TBD"].includes(f.fixture.status.short)) continue;
 
+        const opponentTeam = isHome ? f.teams.away : f.teams.home;
         found.push({
           externalRef: String(f.fixture.id),
           competition: mapLeagueToCompetition(f.league.id),
-          opponent: isHome ? f.teams.away.name : f.teams.home.name,
+          opponent: opponentTeam.name,
+          opponentLogoUrl: opponentTeam.logo ?? null,
           isHome,
           kickoffAt: new Date(f.fixture.date),
         });

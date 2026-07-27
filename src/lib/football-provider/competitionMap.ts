@@ -7,6 +7,7 @@ const LEAGUE_ID_TO_COMPETITION: Record<number, Competition> = {
   137: "COPPA_ITALIA",
   2: "CHAMPIONS_LEAGUE",
   3: "EUROPA_LEAGUE",
+  667: "FRIENDLY", // "Friendlies Clubs" (verificato via /fixtures?id= su un'amichevole reale)
 };
 
 export function mapLeagueToCompetition(leagueId: number): Competition {

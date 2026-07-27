@@ -4,6 +4,7 @@ export interface RawFixture {
   externalRef: string;
   competition: Competition;
   opponent: string;
+  opponentLogoUrl: string | null;
   isHome: boolean;
   kickoffAt: Date;
 }
