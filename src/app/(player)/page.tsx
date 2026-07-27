@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { connection } from "next/server";
 import { Trophy, CalendarDays, ArrowRight, Flame, Target, Hash, TrendingUp, History } from "lucide-react";
-import { getCurrentUser, getActiveSeason } from "@/lib/dal";
+import { getCurrentUser, getActiveSeason, getVisiblePredictions } from "@/lib/dal";
+import { LiveMatchCard } from "@/components/live-match-card";
 import { prisma } from "@/lib/db";
 import { Avatar } from "@/components/avatar";
 import { StatTile } from "@/components/stat-tile";
@@ -40,6 +41,14 @@ export default async function HomePage() {
   });
 
   await connection();
+  const liveMatches = await prisma.match.findMany({
+    where: { seasonId: season.id, kickoffAt: { lte: new Date() }, status: { not: "FINISHED" } },
+    orderBy: { kickoffAt: "asc" },
+  });
+  const livePredictions = await Promise.all(
+    liveMatches.map((match) => getVisiblePredictions(match.id)),
+  );
+
   const upcomingMatches = await prisma.match.findMany({
     where: { seasonId: season.id, kickoffAt: { gte: new Date() } },
     orderBy: { kickoffAt: "asc" },
@@ -128,6 +137,14 @@ export default async function HomePage() {
           </div>
         )}
       </div>
+
+      {liveMatches.length > 0 && (
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-4">
+          {liveMatches.map((match, i) => (
+            <LiveMatchCard key={match.id} match={match} predictions={livePredictions[i]} />
+          ))}
+        </div>
+      )}
 
       <div className="mx-auto grid w-full max-w-4xl grid-cols-2 gap-3 md:grid-cols-4">
         {stats.map((s) => (

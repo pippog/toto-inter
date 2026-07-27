@@ -11,17 +11,7 @@ import { Avatar } from "@/components/avatar";
 import { TeamBadge } from "@/components/team-badge";
 import { formatItalianDateTime } from "@/lib/italianTime";
 import { AnimatedNumber } from "@/components/animated-number";
-
-const SCORER_LABELS: Record<string, string> = {
-  PLAYER_GOAL: "Giocatore",
-  OWN_GOAL: "Autogol (a favore dell'Inter)",
-  NONE: "Nessun marcatore",
-};
-
-function scorerLabel(kind: string, playerName: string | null) {
-  if (kind === "PLAYER_GOAL") return playerName ?? "Giocatore";
-  return SCORER_LABELS[kind] ?? kind;
-}
+import { scorerLabel } from "@/lib/scorer";
 
 export default async function MatchDetailPage({
   params,
