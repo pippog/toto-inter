@@ -49,11 +49,12 @@ export async function GET(request: Request) {
     for (const user of missingUsers) {
       await sendEmail({
         to: user.email,
-        subject: `⏰ Pronostico mancante: ${opponentLine} tra 2 ore`,
+        subject: "PRONOSTICO AMARAL",
         html: `
-          <p>Ciao ${user.name},</p>
-          <p>Manca il tuo pronostico per <strong>${opponentLine}</strong>
-          (${competitionLabel(match.competition)}), calcio d'inizio alle ${kickoffLabel}.</p>
+          <p style="font-size:18px;"><strong>PRONOSTICO AMARAL</strong></p>
+          <p>Ciao ${user.name}, non hai ancora impostato il pronostico per la partita
+          <strong>${opponentLine}</strong> (${competitionLabel(match.competition)}),
+          calcio d'inizio alle ${kickoffLabel}.</p>
           <p><a href="${SITE_URL}/matches/${match.id}">Fai il pronostico ora</a></p>
         `,
       });

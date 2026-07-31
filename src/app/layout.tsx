@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Amaralgame",
+  title: "ilGiochino",
   description: "Pronostici Inter tra amici",
 };
 

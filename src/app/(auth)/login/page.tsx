@@ -8,7 +8,7 @@ export default function LoginPage() {
         <div className="flex items-center gap-2.5">
           <Image src="/inter-logo.png" alt="Inter" width={28} height={28} className="size-7" />
           <p className="text-lg font-semibold tracking-tight text-heading">
-            Amaral<span className="text-inter-gold">game</span>
+            il<span className="text-inter-gold">Giochino</span>
           </p>
         </div>
         <h1 className="mb-6 mt-1 text-sm text-zinc-500">Accedi al tuo account</h1>

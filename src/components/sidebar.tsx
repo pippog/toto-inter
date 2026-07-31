@@ -126,7 +126,7 @@ export function Sidebar({
             />
             {!collapsed && (
               <span className="text-lg font-semibold tracking-tight text-[var(--sidebar-text)]">
-                Amaral<span className="text-inter-gold">game</span>
+                il<span className="text-inter-gold">Giochino</span>
               </span>
             )}
           </button>
