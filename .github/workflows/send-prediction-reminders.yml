@@ -2,9 +2,10 @@ name: Send prediction reminders
 
 on:
   schedule:
-    # Ogni 15 min: la finestra controllata dal cron è larga 1 ora (90-150 min
-    # prima del fischio d'inizio) apposta per assorbire i ritardi tipici
-    # dello scheduler di GitHub Actions senza perdere una partita.
+    # Ogni 15 min: l'endpoint invia il reminder appena il kickoff è entro
+    # 150 min da "ora" e resta idoneo (reminderSentAt null) finché non viene
+    # inviato, quindi anche ritardi/salti dello scheduler di GitHub Actions
+    # non fanno perdere una partita — il giro successivo la recupera.
     - cron: "*/15 * * * *"
   workflow_dispatch:
 

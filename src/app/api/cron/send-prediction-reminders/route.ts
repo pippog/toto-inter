@@ -7,13 +7,17 @@ import { formatItalianDateTime } from "@/lib/italianTime";
 
 const SITE_URL = "https://amaralgame.vercel.app";
 
-// Finestra di 1 ora centrata 2 ore prima del fischio d'inizio: il cron gira
-// ogni 15-30 min via GitHub Actions (Vercel Hobby non permette cron nativi
-// più frequenti di 1/giorno, vedi discover-fixtures/sync-results), quindi la
-// finestra deve essere più larga dell'intervallo tra due giri per non perdere
-// mai una partita anche in caso di ritardo di un'esecuzione.
-const REMINDER_WINDOW_START_MINUTES = 90;
-const REMINDER_WINDOW_END_MINUTES = 150;
+// Invia il reminder non appena il fischio d'inizio è entro questa soglia da
+// ora, senza un limite inferiore: un limite inferiore (es. "solo se il
+// kickoff è tra 90 e 150 minuti da ora") creerebbe una finestra che scorre
+// con il tempo e può chiudersi senza che nessuna esecuzione del cron l'abbia
+// mai intercettata (successo il 2026-08-01: GitHub Actions ha saltato/
+// ritardato l'esecuzione nella finestra utile e il reminder non è mai
+// partito). Con reminderSentAt come guardia contro i doppi invii, una volta
+// che una partita entra in questa soglia resta idonea a ogni giro finché non
+// viene effettivamente inviata: il cron gira ogni 15 min via GitHub Actions
+// ma anche se salta più giri di fila, il primo giro successivo la recupera.
+const REMINDER_LEAD_TIME_MINUTES = 150;
 
 export async function GET(request: Request) {
   if (!isAuthorizedCronRequest(request)) {
@@ -21,12 +25,11 @@ export async function GET(request: Request) {
   }
 
   const now = new Date();
-  const windowStart = new Date(now.getTime() + REMINDER_WINDOW_START_MINUTES * 60_000);
-  const windowEnd = new Date(now.getTime() + REMINDER_WINDOW_END_MINUTES * 60_000);
+  const windowEnd = new Date(now.getTime() + REMINDER_LEAD_TIME_MINUTES * 60_000);
 
   const matches = await prisma.match.findMany({
     where: {
-      kickoffAt: { gte: windowStart, lte: windowEnd },
+      kickoffAt: { gt: now, lte: windowEnd },
       reminderSentAt: null,
       status: { not: "FINISHED" },
     },
