@@ -27,7 +27,7 @@ export async function setPasswordAction(
 
   const user = await prisma.user.findUnique({ where: { inviteToken: token } });
   if (!user || !user.inviteExpires || user.inviteExpires < new Date()) {
-    return { error: "Invito non valido o scaduto. Chiedi un nuovo invito all'amministratore." };
+    return { error: "Link non valido o scaduto. Richiedine uno nuovo." };
   }
 
   const passwordHash = await bcrypt.hash(password, 10);

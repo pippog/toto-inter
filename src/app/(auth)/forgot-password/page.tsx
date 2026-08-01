@@ -1,13 +1,8 @@
 import Image from "next/image";
-import { SetPasswordForm } from "./set-password-form";
+import Link from "next/link";
+import { ForgotPasswordForm } from "./forgot-password-form";
 
-export default async function SetPasswordPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ token?: string }>;
-}) {
-  const { token } = await searchParams;
-
+export default function ForgotPasswordPage() {
   return (
     <div className="flex flex-1 items-center justify-center bg-gradient-to-br from-inter-navy via-inter-navy to-inter-black p-4">
       <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-2xl">
@@ -17,12 +12,11 @@ export default async function SetPasswordPage({
             il<span className="text-inter-gold">Giochino</span>
           </p>
         </div>
-        <h1 className="mb-6 mt-1 text-sm text-zinc-500">Imposta la password</h1>
-        {token ? (
-          <SetPasswordForm token={token} />
-        ) : (
-          <p className="text-sm text-red-600">Link non valido.</p>
-        )}
+        <h1 className="mb-6 mt-1 text-sm text-zinc-500">Password dimenticata</h1>
+        <ForgotPasswordForm />
+        <Link href="/login" className="mt-6 block text-center text-sm text-zinc-500 hover:underline">
+          Torna al login
+        </Link>
       </div>
     </div>
   );
