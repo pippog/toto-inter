@@ -16,4 +16,4 @@ jobs:
       - name: Call send-prediction-reminders endpoint
         run: |
           curl -sf -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            https://amaralgame.vercel.app/api/cron/send-prediction-reminders
+            https://www.ilgiochino.it/api/cron/send-prediction-reminders

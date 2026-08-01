@@ -6,7 +6,7 @@ import { sendEmail } from "@/lib/mailer";
 
 export type ForgotPasswordState = { message?: string; error?: string } | undefined;
 
-const SITE_URL = "https://amaralgame.vercel.app";
+const SITE_URL = "https://www.ilgiochino.it";
 const RESET_TOKEN_EXPIRY_HOURS = 1;
 
 // Messaggio identico sia che l'email esista sia che non esista, per non

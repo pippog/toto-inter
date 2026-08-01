@@ -5,7 +5,7 @@ import { sendEmail } from "@/lib/mailer";
 import { competitionLabel } from "@/lib/competition";
 import { formatItalianDateTime } from "@/lib/italianTime";
 
-const SITE_URL = "https://amaralgame.vercel.app";
+const SITE_URL = "https://www.ilgiochino.it";
 
 // Invia il reminder non appena il fischio d'inizio è entro questa soglia da
 // ora, senza un limite inferiore: un limite inferiore (es. "solo se il

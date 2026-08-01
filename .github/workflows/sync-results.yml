@@ -15,4 +15,4 @@ jobs:
       - name: Call sync-results endpoint
         run: |
           curl -sf -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            https://amaralgame.vercel.app/api/cron/sync-results
+            https://www.ilgiochino.it/api/cron/sync-results
