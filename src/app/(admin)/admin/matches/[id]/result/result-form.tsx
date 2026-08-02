@@ -102,7 +102,8 @@ export function ResultForm({
           <ScorerPlayerField
             squad={squad}
             initialName={match.firstScorerPlayerName}
-            disabled={scorerKind !== "PLAYER_GOAL"}
+            active={scorerKind === "PLAYER_GOAL"}
+            onSelectPlayer={() => setScorerKind("PLAYER_GOAL")}
           />
         </label>
       </fieldset>

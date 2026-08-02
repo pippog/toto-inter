@@ -131,7 +131,8 @@ export function PredictionForm({
                 <ScorerPlayerField
                   squad={squad}
                   initialName={initial?.predictedScorerPlayerName ?? null}
-                  disabled={scorerKind !== "PLAYER_GOAL"}
+                  active={scorerKind === "PLAYER_GOAL"}
+                  onSelectPlayer={() => setScorerKind("PLAYER_GOAL")}
                 />
               </div>
             )}
