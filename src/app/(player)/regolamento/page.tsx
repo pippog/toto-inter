@@ -56,7 +56,8 @@ export default function RegolamentoPage() {
         <p>
           Se indovini <strong>sia il risultato sia il marcatore</strong> nella stessa
           partita, prendi un bonus del <strong>+50%</strong> sul totale dei due punti di
-          quella partita.
+          quella partita, <strong>compreso l&apos;eventuale bonus streak</strong> già
+          maturato su quella partita.
         </p>
       </section>
 
@@ -81,10 +82,10 @@ export default function RegolamentoPage() {
           </Timeline>
         </div>
         <p>
-          Il bonus si applica al totale dei due punti base di quella partita, sommando
-          la percentuale dello streak risultato e quella dello streak marcatore. Uno
-          sbaglio (o un pronostico mancante) azzera subito la striscia di quel
-          componente.
+          Ogni percentuale si applica solo ai punti della propria componente: lo
+          streak sul risultato non gonfia anche il marcatore preso la stessa partita
+          (e viceversa). Uno sbaglio (o un pronostico mancante) azzera subito la
+          striscia di quel componente.
         </p>
       </section>
 
@@ -102,11 +103,14 @@ export default function RegolamentoPage() {
           <li>Risultato: 1 punto diviso tra i 2 che lo indovinano = 0.5 pt</li>
           <li>Marcatore: 1 punto diviso tra l&apos;unico che lo indovina = 1 pt</li>
           <li>Base B = 0.5 + 1 = 1.5 pt</li>
-          <li>Bonus combo, hai indovinato entrambi (+50% su B) = 0.75 pt</li>
-          <li>Bonus streak risultato, 3 di fila (+60% su B) = 0.9 pt</li>
+          <li>Bonus streak risultato, 3 di fila (+60% sui 0.5 pt del risultato) = 0.3 pt</li>
           <li>Bonus streak marcatore, 1 di fila: 0% (nessun bonus sotto le 2 di fila)</li>
           <li>
-            <strong>Totale: 1.5 + 0.75 + 0.9 = 3.15 pt</strong>
+            Bonus combo, hai indovinato entrambi (+50% su base + streak, 1.5 + 0.3 =
+            1.8) = 0.9 pt
+          </li>
+          <li>
+            <strong>Totale: 1.5 + 0.3 + 0.9 = 2.7 pt</strong>
           </li>
         </ul>
       </section>

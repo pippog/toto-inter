@@ -57,9 +57,6 @@ export function computeMatchScores(
       : ZERO;
     const basePoints = resPoints.plus(marcatorePoints);
 
-    const comboBonus =
-      resCorrect && marcatoreCorrect ? basePoints.times(HALF) : ZERO;
-
     const prior = priorStreaks.get(userId) ?? ZERO_STREAK;
     const resStreakLenAfter = resCorrect ? prior.res + 1 : 0;
     const marcatoreStreakLenAfter = marcatoreCorrect ? prior.marcatore + 1 : 0;
@@ -73,7 +70,15 @@ export function computeMatchScores(
       .times(resPoints)
       .plus(marcatoreStreakBonusPct.times(marcatorePoints));
 
-    const totalPoints = basePoints.plus(comboBonus).plus(streakBonusPoints);
+    // Il combo (+50%) si applica su base + streak, non solo sul base: chi
+    // indovina entrambi i componenti prende il bonus anche sui punti che lo
+    // streak ha già gonfiato, non solo sul punteggio base della partita.
+    const comboBonus =
+      resCorrect && marcatoreCorrect
+        ? basePoints.plus(streakBonusPoints).times(HALF)
+        : ZERO;
+
+    const totalPoints = basePoints.plus(streakBonusPoints).plus(comboBonus);
 
     perPlayer.set(userId, {
       userId,
@@ -100,16 +105,17 @@ export function computeMatchScores(
   return { perPlayer, updatedStreaks };
 }
 
-// Forma fattorizzata equivalente a B + C + R, usata solo come cross-check
+// Forma fattorizzata equivalente a B + R + C, usata solo come cross-check
 // nei test per intercettare eventuali errori algebrici nella scomposizione
-// additiva sopra. Il combo (+50%) si applica a entrambe le componenti
-// insieme, ma lo streak si applica a ciascuna componente separatamente:
-// il moltiplicatore di resPoints e quello di marcatorePoints possono
-// differire, quindi niente fattore comune su basePoints.
+// additiva sopra. Il combo (+50%) si applica sulla somma di base e streak,
+// quindi è un moltiplicatore comune a entrambe le componenti; lo streak
+// resta invece specifico di ciascuna componente.
 export function totalPointsFactoredForm(result: MatchScoreResult): Decimal {
   const comboFlag = result.resCorrect && result.marcatoreCorrect ? 1 : 0;
   const comboMultiplier = new Decimal(1).plus(HALF.times(comboFlag));
-  return result.resPoints
-    .times(comboMultiplier.plus(result.resStreakBonusPct))
-    .plus(result.marcatorePoints.times(comboMultiplier.plus(result.marcatoreStreakBonusPct)));
+  const resTerm = result.resPoints.times(new Decimal(1).plus(result.resStreakBonusPct));
+  const marcatoreTerm = result.marcatorePoints.times(
+    new Decimal(1).plus(result.marcatoreStreakBonusPct),
+  );
+  return resTerm.plus(marcatoreTerm).times(comboMultiplier);
 }
