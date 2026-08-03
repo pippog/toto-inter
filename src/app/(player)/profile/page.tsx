@@ -2,6 +2,7 @@ import { getCurrentUser } from "@/lib/dal";
 import { Avatar } from "@/components/avatar";
 import { ProfileForm } from "./profile-form";
 import { ChangePasswordForm } from "./change-password-form";
+import { PushNotifications } from "./push-notifications";
 
 export default async function ProfilePage() {
   const user = await getCurrentUser();
@@ -25,6 +26,7 @@ export default async function ProfilePage() {
         }}
       />
       <ChangePasswordForm />
+      <PushNotifications />
     </div>
   );
 }

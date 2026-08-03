@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -15,6 +15,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ilGiochino",
   description: "Pronostici Inter tra amici",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "ilGiochino",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0c1b4d",
 };
 
 export default function RootLayout({

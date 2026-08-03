@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { isAuthorizedCronRequest } from "@/lib/cronAuth";
 import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/mailer";
+import { sendPushToUser } from "@/lib/webPush";
 import { competitionLabel } from "@/lib/competition";
 import { formatItalianDateTime } from "@/lib/italianTime";
 
@@ -38,6 +39,7 @@ export async function GET(request: Request) {
 
   let matchesProcessed = 0;
   let emailsSent = 0;
+  let pushSent = 0;
 
   for (const match of matches) {
     const predictedUserIds = new Set(match.predictions.map((p) => p.userId));
@@ -62,11 +64,24 @@ export async function GET(request: Request) {
         `,
       });
       emailsSent++;
+
+      // Best-effort: un errore qui non deve impedire l'invio dell'email (e
+      // viceversa non deve bloccare gli utenti successivi nel loop).
+      try {
+        await sendPushToUser(user.id, {
+          title: "PRONOSTICO AMARAL",
+          body: `Non hai ancora pronosticato ${opponentLine} (${kickoffLabel}).`,
+          url: `/matches/${match.id}`,
+        });
+        pushSent++;
+      } catch (error) {
+        console.error(`push reminder: invio a ${user.id} fallito:`, error);
+      }
     }
 
     await prisma.match.update({ where: { id: match.id }, data: { reminderSentAt: now } });
     matchesProcessed++;
   }
 
-  return NextResponse.json({ matchesProcessed, emailsSent });
+  return NextResponse.json({ matchesProcessed, emailsSent, pushSent });
 }

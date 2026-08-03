@@ -15,9 +15,18 @@ import {
   BookOpen,
   X,
   ChevronsLeft,
+  Download,
+  Share,
 } from "lucide-react";
 import { Avatar } from "./avatar";
 import { useMobileNav } from "./mobile-nav-context";
+
+// Non standard nel DOM lib di TypeScript: evento specifico Chromium/Edge che
+// permette di triggerare l'install prompt nativo da un click utente.
+type BeforeInstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+};
 
 type NavItem = { href: string; label: string; icon: ComponentType<{ className?: string }> };
 
@@ -66,6 +75,66 @@ function NavLink({
       <Icon className={`size-[18px] shrink-0 ${active ? "text-inter-gold" : ""}`} />
       {!collapsed && <span>{item.label}</span>}
     </Link>
+  );
+}
+
+function InstallAppButton({ collapsed }: { collapsed: boolean }) {
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [isStandalone, setIsStandalone] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+  const [showIosHelp, setShowIosHelp] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- lettura di matchMedia/userAgent disponibile solo lato client, non c'è modo di farlo nel lazy initializer senza mismatch di idratazione.
+    setIsStandalone(window.matchMedia("(display-mode: standalone)").matches);
+    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent) && !("MSStream" in window));
+
+    const onBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
+    };
+    const onInstalled = () => setDeferredPrompt(null);
+
+    window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  if (isStandalone || (!deferredPrompt && !isIOS)) return null;
+
+  async function handleClick() {
+    if (deferredPrompt) {
+      await deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      setDeferredPrompt(null);
+      return;
+    }
+    setShowIosHelp((v) => !v);
+  }
+
+  return (
+    <div className="px-3 py-1">
+      <button
+        type="button"
+        onClick={handleClick}
+        title={collapsed ? "Installa l'app" : undefined}
+        className="group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-[var(--sidebar-text-muted)] transition-all duration-150 hover:bg-[var(--sidebar-hover)] hover:text-[var(--sidebar-text)]"
+      >
+        <Download className="size-[18px] shrink-0" />
+        {!collapsed && <span>Installa l&apos;app</span>}
+      </button>
+
+      {showIosHelp && !collapsed && (
+        <div className="mt-1 rounded-xl bg-[var(--sidebar-panel)] p-3 text-xs text-[var(--sidebar-text-muted)]">
+          <p className="flex items-center gap-1.5">
+            Tocca <Share className="size-3.5 shrink-0" /> e poi &quot;Aggiungi alla schermata Home&quot;.
+          </p>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -184,6 +253,8 @@ export function Sidebar({
             </>
           )}
         </nav>
+
+        <InstallAppButton collapsed={collapsed} />
 
         <div className="mx-3 mb-3 rounded-xl bg-[var(--sidebar-panel)] p-2">
           {!collapsed && (

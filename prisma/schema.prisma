@@ -69,9 +69,10 @@ model User {
   lastName       String?
   avatarUrl      String?
 
-  predictions    Prediction[]
-  matchScores    MatchScore[]
-  streakStates   PlayerStreakState[]
+  predictions       Prediction[]
+  matchScores       MatchScore[]
+  streakStates      PlayerStreakState[]
+  pushSubscriptions PushSubscription[]
 }
 
 model Season {
@@ -193,6 +194,19 @@ model SyncLog {
   responseSummary String?
   error           String?
   createdAt       DateTime @default(now())
+}
+
+// Subscription push del browser/device di un utente (Web Push API). Un
+// utente può averne più di una (più device/browser); endpoint è univoco
+// per costruzione (assegnato dal push service del browser).
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
 }
 
 // Rosa Inter sincronizzata da API-Football (/players/squads), per popolare
