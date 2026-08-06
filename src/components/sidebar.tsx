@@ -179,11 +179,15 @@ export function Sidebar({
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         } ${collapsed ? "md:w-[72px]" : "md:w-64"} w-72`}
       >
-        <div className={`flex items-center px-4 py-6 ${collapsed ? "justify-center" : "justify-between"}`}>
-          <button
-            type="button"
-            onClick={() => collapsed && setCollapsed(false)}
-            aria-label={collapsed ? "Espandi il menu" : undefined}
+        <div
+          className={`flex px-4 py-6 ${
+            collapsed ? "flex-col items-center gap-3" : "flex-row items-center justify-between"
+          }`}
+        >
+          <Link
+            href="/"
+            onClick={() => setMobileOpen(false)}
+            aria-label="Vai alla home"
             className="flex items-center gap-2.5"
           >
             <Image
@@ -198,7 +202,7 @@ export function Sidebar({
                 il<span className="text-inter-gold">Giochino</span>
               </span>
             )}
-          </button>
+          </Link>
           <button
             type="button"
             onClick={() => setMobileOpen(false)}
@@ -207,16 +211,14 @@ export function Sidebar({
           >
             <X className="size-5" />
           </button>
-          {!collapsed && (
-            <button
-              type="button"
-              onClick={() => setCollapsed(true)}
-              aria-label="Comprimi il menu"
-              className="hidden text-[var(--sidebar-text-muted)] transition-colors hover:text-[var(--sidebar-text)] md:block"
-            >
-              <ChevronsLeft className="size-4" />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => setCollapsed(!collapsed)}
+            aria-label={collapsed ? "Espandi il menu" : "Comprimi il menu"}
+            className="hidden text-[var(--sidebar-text-muted)] transition-colors hover:text-[var(--sidebar-text)] md:block"
+          >
+            <ChevronsLeft className={`size-4 transition-transform ${collapsed ? "rotate-180" : ""}`} />
+          </button>
         </div>
 
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3">
