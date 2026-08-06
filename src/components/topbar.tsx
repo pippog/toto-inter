@@ -52,7 +52,10 @@ export function Topbar() {
           <Menu className="size-5" />
         </button>
         <nav className="flex items-center gap-1.5 text-sm">
-          <span className="text-zinc-400">Home</span>
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- click su "Home" deve forzare un reload completo, non una transizione client-side */}
+          <a href="/" className="text-zinc-400 transition-colors hover:text-heading">
+            Home
+          </a>
           {crumbs.map((crumb, i) => (
             <span key={crumb.label} className="flex items-center gap-1.5">
               <span className="text-zinc-300">›</span>

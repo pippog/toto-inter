@@ -184,12 +184,8 @@ export function Sidebar({
             collapsed ? "flex-col items-center gap-3" : "flex-row items-center justify-between"
           }`}
         >
-          <Link
-            href="/"
-            onClick={() => setMobileOpen(false)}
-            aria-label="Vai alla home"
-            className="flex items-center gap-2.5"
-          >
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- click sul logo deve forzare un reload completo, non una transizione client-side */}
+          <a href="/" aria-label="Vai alla home" className="flex items-center gap-2.5">
             <Image
               src="/inter-logo.png"
               alt="Inter"
@@ -202,7 +198,7 @@ export function Sidebar({
                 il<span className="text-inter-gold">Giochino</span>
               </span>
             )}
-          </Link>
+          </a>
           <button
             type="button"
             onClick={() => setMobileOpen(false)}
