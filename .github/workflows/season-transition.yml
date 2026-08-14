@@ -1,0 +1,25 @@
+name: Season transition (test estate -> 2026-27)
+
+on:
+  schedule:
+    # Bersaglio: 19/8/2026 alle 10:00 ora italiana (08:00 UTC in agosto,
+    # CEST). Il primo blocco martella ogni 15 min in quell'ora per
+    # minimizzare il ritardo dello scheduler di GitHub Actions rispetto alle
+    # 10:00 (vedi nota affidabilità in send-prediction-reminders.yml); il
+    # resto del 19 gira ogni ora come rete di sicurezza; il 20 fa da giorno
+    # di recupero se il 19 saltasse del tutto. L'endpoint è gated
+    # sull'istante esatto ed è idempotente, quindi ogni giro fuori target o
+    # ripetuto dopo il rollover è un no-op innocuo.
+    - cron: "0,15,30,45 8 19 8 *"
+    - cron: "0 9-22 19 8 *"
+    - cron: "0 8,12,16,20 20 8 *"
+  workflow_dispatch:
+
+jobs:
+  transition:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call season-transition endpoint
+        run: |
+          curl -sf -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://www.ilgiochino.it/api/cron/season-transition
