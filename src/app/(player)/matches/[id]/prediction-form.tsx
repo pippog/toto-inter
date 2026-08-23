@@ -77,6 +77,9 @@ export function PredictionForm({
   );
   const [homeScore, setHomeScore] = useState(initial?.predictedHomeScore ?? 0);
   const [awayScore, setAwayScore] = useState(initial?.predictedAwayScore ?? 0);
+  const [scorerPlayerName, setScorerPlayerName] = useState(
+    initial?.predictedScorerPlayerName ?? "",
+  );
 
   const homeLabel = isHome ? "Inter" : opponent;
   const awayLabel = isHome ? opponent : "Inter";
@@ -130,7 +133,8 @@ export function PredictionForm({
               <div className="pl-6">
                 <ScorerPlayerField
                   squad={squad}
-                  initialName={initial?.predictedScorerPlayerName ?? null}
+                  value={scorerPlayerName}
+                  onChange={setScorerPlayerName}
                   active={scorerKind === "PLAYER_GOAL"}
                   onSelectPlayer={() => setScorerKind("PLAYER_GOAL")}
                 />

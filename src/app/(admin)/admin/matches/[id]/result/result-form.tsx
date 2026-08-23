@@ -30,6 +30,9 @@ export function ResultForm({
   const [scorerKind, setScorerKind] = useState(
     match.firstScorerKind ?? "NONE",
   );
+  const [scorerPlayerName, setScorerPlayerName] = useState(
+    match.firstScorerPlayerName ?? "",
+  );
 
   const homeLabel = isHome ? "Inter" : opponent;
   const awayLabel = isHome ? opponent : "Inter";
@@ -101,7 +104,8 @@ export function ResultForm({
           Un giocatore dell&apos;Inter:
           <ScorerPlayerField
             squad={squad}
-            initialName={match.firstScorerPlayerName}
+            value={scorerPlayerName}
+            onChange={setScorerPlayerName}
             active={scorerKind === "PLAYER_GOAL"}
             onSelectPlayer={() => setScorerKind("PLAYER_GOAL")}
           />

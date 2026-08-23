@@ -18,18 +18,19 @@ const inputClass =
 // come "nessun marcatore" pur avendo scelto un giocatore.
 export function ScorerPlayerField({
   squad,
-  initialName,
+  value,
+  onChange,
   active,
   onSelectPlayer,
 }: {
   squad: string[];
-  initialName: string | null;
+  value: string;
+  onChange: (value: string) => void;
   active: boolean;
   onSelectPlayer: () => void;
 }) {
-  const initialInSquad = !!initialName && squad.includes(initialName);
   const [manualMode, setManualMode] = useState(
-    squad.length === 0 || (!!initialName && !initialInSquad),
+    squad.length === 0 || (!!value && !squad.includes(value)),
   );
   const dimClass = active ? "" : "opacity-50";
 
@@ -39,8 +40,9 @@ export function ScorerPlayerField({
         <input
           type="text"
           name="scorerPlayerName"
-          defaultValue={initialName ?? ""}
+          value={value}
           onChange={(e) => {
+            onChange(e.target.value);
             if (e.target.value) onSelectPlayer();
           }}
           placeholder="Nome giocatore"
@@ -62,12 +64,13 @@ export function ScorerPlayerField({
   return (
     <select
       name="scorerPlayerName"
-      defaultValue={initialInSquad ? initialName! : ""}
+      value={squad.includes(value) ? value : ""}
       onChange={(e) => {
         if (e.target.value === "__other__") {
           setManualMode(true);
           return;
         }
+        onChange(e.target.value);
         if (e.target.value) onSelectPlayer();
       }}
       className={`${inputClass} ${dimClass}`}
