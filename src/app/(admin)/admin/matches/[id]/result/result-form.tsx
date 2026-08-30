@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { ScorerPlayerField } from "@/components/scorer-player-field";
 import { setManualResult } from "../../actions";
@@ -34,12 +34,22 @@ export function ResultForm({
     match.firstScorerPlayerName ?? "",
   );
 
+  // Vedi commento gemello in prediction-form.tsx: il requestFormReset()
+  // interno di React dopo un submit va a scrivere sui nodi DOM originali
+  // anche a fronte di uno stato React già corretto. Cambiare "key" sul
+  // form forza dei nodi nuovi, immuni al reset residuo.
+  const [formVersion, setFormVersion] = useState(0);
+  useEffect(() => {
+    if (state !== undefined) setFormVersion((v) => v + 1);
+  }, [state]);
+
   const homeLabel = isHome ? "Inter" : opponent;
   const awayLabel = isHome ? opponent : "Inter";
 
   return (
     <form
       action={action}
+      key={formVersion}
       className="flex flex-col gap-4 rounded-2xl bg-surface shadow-card p-4"
     >
       <div className="flex items-end gap-2">

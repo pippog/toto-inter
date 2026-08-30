@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Minus, Plus, Check } from "lucide-react";
 import { ScorerPlayerField } from "@/components/scorer-player-field";
 import { submitPrediction } from "./actions";
@@ -81,6 +81,17 @@ export function PredictionForm({
     initial?.predictedScorerPlayerName ?? "",
   );
 
+  // Ogni submit dell'azione fa scattare un requestFormReset() interno di
+  // React, che ripristina i campi nativi del form DOPO che React li ha già
+  // ridisegnati con i valori corretti: senza rimonto, select/input tornano
+  // visivamente al valore di default anche se lo stato React (e il DB) sono
+  // corretti. Cambiare "key" sul form forza dei nodi DOM nuovi, immuni al
+  // reset residuo, appena l'azione si conclude (successo o errore).
+  const [formVersion, setFormVersion] = useState(0);
+  useEffect(() => {
+    if (state !== undefined) setFormVersion((v) => v + 1);
+  }, [state]);
+
   const homeLabel = isHome ? "Inter" : opponent;
   const awayLabel = isHome ? opponent : "Inter";
 
@@ -91,7 +102,11 @@ export function PredictionForm({
   ] as const;
 
   return (
-    <form action={action} className="flex flex-col gap-5 rounded-2xl bg-surface shadow-card p-5">
+    <form
+      action={action}
+      key={formVersion}
+      className="flex flex-col gap-5 rounded-2xl bg-surface shadow-card p-5"
+    >
       <h2 className="font-medium text-heading">
         {initial ? "Modifica il tuo pronostico" : "Il tuo pronostico"}
       </h2>
