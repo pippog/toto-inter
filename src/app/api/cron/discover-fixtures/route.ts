@@ -2,16 +2,16 @@ import { NextResponse } from "next/server";
 import { isAuthorizedCronRequest } from "@/lib/cronAuth";
 import { getActiveSeason } from "@/lib/dal";
 import { prisma } from "@/lib/db";
-import { apiFootballProvider, INTER_TEAM_ID } from "@/lib/football-provider/apiFootballProvider";
+import { highlightlyProvider, INTER_TEAM_ID } from "@/lib/football-provider/highlightlyProvider";
 import { sendEmail } from "@/lib/mailer";
 import { competitionLabel } from "@/lib/competition";
 import { formatItalianDateTime } from "@/lib/italianTime";
 import type { Competition } from "@/generated/prisma/enums";
 
-// Il piano Free di API-Football accetta `date=` solo entro una finestra
-// mobile di pochi giorni attorno a oggi (verificato in produzione): oltre
-// non serve comunque spingersi, dato che i giorni fuori finestra vengono
-// scartati (findUpcomingFixtures li salta senza fallire).
+// Vestigiale: era la finestra massima accettata dal piano Free di
+// API-Football. Highlightly non ha questo limite (findUpcomingFixtures
+// ritorna tutto il calendario noto in una volta), il parametro resta solo
+// per compatibilità di firma con FootballDataProvider.
 const DISCOVERY_WINDOW_DAYS = 3;
 const PREDICTION_DEADLINE_MINUTES_BEFORE_KICKOFF = 5;
 
@@ -62,10 +62,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const squadSync = await syncSquad();
-
   const season = await getActiveSeason();
-  const fixtures = await apiFootballProvider.findUpcomingFixtures(
+  const fixtures = await highlightlyProvider.findUpcomingFixtures(
     INTER_TEAM_ID,
     DISCOVERY_WINDOW_DAYS,
   );
@@ -160,30 +158,5 @@ export async function GET(request: Request) {
     });
   }
 
-  return NextResponse.json({ found: fixtures.length, created, updated, adopted, squadSync });
-}
-
-// Rosa per la tendina marcatore (vedi Player nello schema): sincronizzata
-// qui, una volta al giorno insieme alla scoperta partite, non ad ogni
-// caricamento del form — la rosa cambia solo nelle finestre di mercato.
-async function syncSquad() {
-  const squad = await apiFootballProvider.getSquad(INTER_TEAM_ID);
-  if (squad.length === 0) {
-    return { synced: 0, deactivated: 0 };
-  }
-
-  for (const p of squad) {
-    await prisma.player.upsert({
-      where: { externalRef: p.externalRef },
-      update: { name: p.name, active: true },
-      create: { externalRef: p.externalRef, name: p.name, active: true },
-    });
-  }
-
-  const { count } = await prisma.player.updateMany({
-    where: { externalRef: { notIn: squad.map((p) => p.externalRef) } },
-    data: { active: false },
-  });
-
-  return { synced: squad.length, deactivated: count };
+  return NextResponse.json({ found: fixtures.length, created, updated, adopted });
 }

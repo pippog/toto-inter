@@ -28,5 +28,7 @@ export interface RawSquadPlayer {
 export interface FootballDataProvider {
   findUpcomingFixtures(teamId: number, daysAhead: number): Promise<RawFixture[]>;
   getFixtureResult(fixtureId: string, teamId: number): Promise<FixtureResult>;
-  getSquad(teamId: number): Promise<RawSquadPlayer[]>;
+  // Opzionale: non tutti i provider offrono la rosa (es. Highlightly, vedi
+  // highlightlyProvider.ts) — la gestione rosa è momentaneamente manuale.
+  getSquad?(teamId: number): Promise<RawSquadPlayer[]>;
 }
