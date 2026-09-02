@@ -33,18 +33,32 @@ async function apiGet(path: string): Promise<unknown> {
   return json;
 }
 
+// Le stagioni europee sono etichettate con l'anno di inizio (una partita di
+// gennaio 2027 è ancora "season 2026", verificato via /leagues durante lo
+// spike). Serve solo per restringere /matches alla stagione corrente: senza
+// questo filtro l'endpoint torna *tutto* lo storico della squadra (oltre
+// 200 partite per l'Inter, dal 2023), sprecando chiamate sulla quota
+// giornaliera del piano Basic (100/giorno) per partite già concluse da anni
+// che comunque il filtro "Not started" scarterebbe subito dopo.
+function currentSeasonYear(): number {
+  const now = new Date();
+  const month = now.getUTCMonth(); // 0 = gennaio
+  return month >= 6 ? now.getUTCFullYear() : now.getUTCFullYear() - 1;
+}
+
 // A differenza del piano Free di API-Football (finestra mobile di pochi
 // giorni), qui una singola coppia di chiamate home/away restituisce l'intero
-// calendario noto della squadra: nessun bisogno di scorrere giorno per
-// giorno. `daysAhead` resta nella firma solo per compatibilità con
-// l'interfaccia condivisa (vedi apiFootballProvider.ts, non più attivo).
-async function findAllMatches(teamSide: "homeTeamId" | "awayTeamId", teamId: number) {
+// calendario noto della squadra per la stagione: nessun bisogno di scorrere
+// giorno per giorno. `daysAhead` resta nella firma solo per compatibilità
+// con l'interfaccia condivisa (vedi apiFootballProvider.ts, non più attivo).
+async function findSeasonMatches(teamSide: "homeTeamId" | "awayTeamId", teamId: number) {
+  const season = currentSeasonYear();
   const all: HighlightlyMatchListItem[] = [];
   let offset = 0;
 
   for (;;) {
     const response = (await apiGet(
-      `/matches?${teamSide}=${teamId}&offset=${offset}&limit=${PAGE_LIMIT}`,
+      `/matches?${teamSide}=${teamId}&season=${season}&offset=${offset}&limit=${PAGE_LIMIT}`,
     )) as { data: HighlightlyMatchListItem[]; pagination: { totalCount: number } };
 
     all.push(...response.data);
@@ -58,8 +72,8 @@ async function findAllMatches(teamSide: "homeTeamId" | "awayTeamId", teamId: num
 export const highlightlyProvider: FootballDataProvider = {
   async findUpcomingFixtures(teamId, _daysAhead): Promise<RawFixture[]> {
     const [homeMatches, awayMatches] = await Promise.all([
-      findAllMatches("homeTeamId", teamId),
-      findAllMatches("awayTeamId", teamId),
+      findSeasonMatches("homeTeamId", teamId),
+      findSeasonMatches("awayTeamId", teamId),
     ]);
 
     return [...homeMatches, ...awayMatches]
