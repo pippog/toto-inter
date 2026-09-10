@@ -9,6 +9,7 @@ import { applyMatchResult } from "./applyMatchResult";
 describe("applyMatchResult — ricalcolo a cascata su correzione", () => {
   let seasonId: string;
   let userId: string;
+  let teamId: string;
   let matchIds: string[] = [];
 
   beforeAll(async () => {
@@ -16,6 +17,15 @@ describe("applyMatchResult — ricalcolo a cascata su correzione", () => {
       data: { label: `TEST-CASCADE-${Date.now()}`, isActive: false },
     });
     seasonId = season.id;
+
+    // Team è una tabella di riferimento condivisa (non per-test): upsert
+    // invece di create, così più run non collidono sull'externalRef unique.
+    const team = await prisma.team.upsert({
+      where: { externalRef: "430539" },
+      update: {},
+      create: { externalRef: "430539", name: "Inter" },
+    });
+    teamId = team.id;
 
     const user = await prisma.user.create({
       data: {
@@ -48,6 +58,7 @@ describe("applyMatchResult — ricalcolo a cascata su correzione", () => {
         prisma.match.create({
           data: {
             seasonId,
+            teamId,
             competition: "SERIE_A",
             opponent: "Avversario Test",
             isHome: true,

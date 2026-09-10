@@ -63,6 +63,9 @@ export async function GET(request: Request) {
   }
 
   const season = await getActiveSeason();
+  const team = await prisma.team.findFirstOrThrow({
+    where: { externalRef: String(INTER_TEAM_ID) },
+  });
   const fixtures = await highlightlyProvider.findUpcomingFixtures(
     INTER_TEAM_ID,
     DISCOVERY_WINDOW_DAYS,
@@ -130,6 +133,7 @@ export async function GET(request: Request) {
     await prisma.match.create({
       data: {
         seasonId: season.id,
+        teamId: team.id,
         competition: fx.competition,
         opponent: fx.opponent,
         opponentLogoUrl: fx.opponentLogoUrl,

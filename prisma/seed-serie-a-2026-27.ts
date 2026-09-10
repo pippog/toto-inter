@@ -7,6 +7,7 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 const DEADLINE_MINUTES_BEFORE_KICKOFF = 5;
+const INTER_EXTERNAL_REF = "430539"; // src/lib/football-provider/highlightlyProvider.ts INTER_TEAM_ID — non importare quel file da qui, ha "import server-only" in cima e crasha fuori da Next.js
 
 // Calendario Serie A 2026-27 dell'Inter (fonte: inter.it, incrociato con
 // calciomagazine.net e stampa). Orari ufficiali solo per le giornate 1-5;
@@ -58,6 +59,7 @@ const FIXTURES: { opponent: string; isHome: boolean; kickoff: string }[] = [
 
 async function main() {
   const season = await prisma.season.findFirstOrThrow({ where: { isActive: true } });
+  const team = await prisma.team.findFirstOrThrow({ where: { externalRef: INTER_EXTERNAL_REF } });
 
   let created = 0;
   let skipped = 0;
@@ -84,6 +86,7 @@ async function main() {
     await prisma.match.create({
       data: {
         seasonId: season.id,
+        teamId: team.id,
         competition: "SERIE_A",
         opponent: fx.opponent,
         isHome: fx.isHome,

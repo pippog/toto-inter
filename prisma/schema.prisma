@@ -51,6 +51,12 @@ enum ScorerKind {
   NONE
 }
 
+enum LeagueRole {
+  MEMBER
+  MODERATOR
+  OWNER
+}
+
 model User {
   id             String     @id @default(uuid())
   name           String
@@ -73,6 +79,50 @@ model User {
   matchScores       MatchScore[]
   streakStates      PlayerStreakState[]
   pushSubscriptions PushSubscription[]
+  createdLeagues    League[]
+  leagueMemberships LeagueMembership[]
+}
+
+// Squadra di calcio reale (oggi solo Inter). Vedi piano: Season/Match restano
+// condivisi tra leghe che seguono la stessa squadra, solo MatchScore/
+// PlayerStreakState (Step 3, non ancora implementato) saranno scoped per lega.
+model Team {
+  id          String   @id @default(uuid())
+  externalRef String   @unique
+  name        String
+  logoUrl     String?
+  active      Boolean  @default(true)
+
+  matches Match[]
+  players Player[]
+  leagues League[]
+}
+
+// Gruppo di amici che segue una squadra e ha una classifica propria.
+model League {
+  id              String   @id @default(uuid())
+  name            String
+  slug            String   @unique
+  teamId          String
+  team            Team     @relation(fields: [teamId], references: [id])
+  createdByUserId String
+  createdBy       User     @relation(fields: [createdByUserId], references: [id])
+  joinCode        String?  @unique
+  createdAt       DateTime @default(now())
+
+  memberships LeagueMembership[]
+}
+
+model LeagueMembership {
+  userId   String
+  user     User       @relation(fields: [userId], references: [id])
+  leagueId String
+  league   League     @relation(fields: [leagueId], references: [id])
+  role     LeagueRole @default(MEMBER)
+  joinedAt DateTime   @default(now())
+
+  @@id([userId, leagueId])
+  @@index([leagueId])
 }
 
 model Season {
@@ -89,6 +139,8 @@ model Match {
   id                    String        @id @default(uuid())
   seasonId              String
   season                Season        @relation(fields: [seasonId], references: [id])
+  teamId                String
+  team                  Team          @relation(fields: [teamId], references: [id])
   competition           Competition
   opponent              String
   opponentLogoUrl       String?
@@ -120,6 +172,7 @@ model Match {
   syncLogs     SyncLog[]
 
   @@index([seasonId, kickoffAt])
+  @@index([teamId])
 }
 
 model Prediction {
@@ -216,8 +269,12 @@ model PushSubscription {
 // tendina ma i pronostici già fatti restano intatti.
 model Player {
   id          String   @id @default(uuid())
-  externalRef String   @unique
+  teamId      String
+  team        Team     @relation(fields: [teamId], references: [id])
+  externalRef String
   name        String
   active      Boolean  @default(true)
   updatedAt   DateTime @updatedAt
+
+  @@unique([teamId, externalRef])
 }

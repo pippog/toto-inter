@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { applyMatchResult } from "@/lib/scoring/applyMatchResult";
 import { parseItalianLocalDateTime } from "@/lib/italianTime";
+import { INTER_TEAM_ID } from "@/lib/football-provider/highlightlyProvider";
 import type { Competition, ScorerKind } from "@/generated/prisma/enums";
 
 const DEADLINE_MINUTES_BEFORE_KICKOFF = 5;
@@ -19,6 +20,9 @@ export async function createMatch(
 
   const season = await prisma.season.findFirstOrThrow({
     where: { isActive: true },
+  });
+  const team = await prisma.team.findFirstOrThrow({
+    where: { externalRef: String(INTER_TEAM_ID) },
   });
 
   const kickoffAtRaw = String(formData.get("kickoffAt"));
@@ -39,6 +43,7 @@ export async function createMatch(
   await prisma.match.create({
     data: {
       seasonId: season.id,
+      teamId: team.id,
       competition: formData.get("competition") as Competition,
       opponent,
       opponentLogoUrl,

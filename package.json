@@ -10,7 +10,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "postinstall": "prisma generate",
-    "seed:prod": "tsx prisma/seed-prod.ts"
+    "seed:prod": "tsx prisma/seed-prod.ts",
+    "backfill:team-inter": "tsx prisma/backfill-team-inter.ts",
+    "backfill:league-storica": "tsx prisma/backfill-league-storica.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",

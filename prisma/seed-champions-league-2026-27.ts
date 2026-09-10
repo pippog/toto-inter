@@ -7,6 +7,7 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 const DEADLINE_MINUTES_BEFORE_KICKOFF = 5;
+const INTER_EXTERNAL_REF = "430539"; // src/lib/football-provider/highlightlyProvider.ts INTER_TEAM_ID — non importare quel file da qui, ha "import server-only" in cima e crasha fuori da Next.js
 
 // Calendario Champions League 2026-27 (fase campionato) dell'Inter — 8
 // giornate, fonte: sorteggio del 28/8/2026, incrociato su Sky Sport,
@@ -78,6 +79,7 @@ const FIXTURES: {
 
 async function main() {
   const season = await prisma.season.findFirstOrThrow({ where: { isActive: true } });
+  const team = await prisma.team.findFirstOrThrow({ where: { externalRef: INTER_EXTERNAL_REF } });
 
   let created = 0;
   let skipped = 0;
@@ -104,6 +106,7 @@ async function main() {
     await prisma.match.create({
       data: {
         seasonId: season.id,
+        teamId: team.id,
         competition: "CHAMPIONS_LEAGUE",
         opponent: fx.opponent,
         opponentLogoUrl: fx.opponentLogoUrl,
