@@ -17,6 +17,8 @@ import {
   ChevronsLeft,
   Download,
   Share,
+  Shield,
+  Network,
 } from "lucide-react";
 import { Avatar } from "./avatar";
 import { useMobileNav } from "./mobile-nav-context";
@@ -42,6 +44,8 @@ const ADMIN_NAV: NavItem[] = [
   { href: "/admin/matches", label: "Partite", icon: ShieldCheck },
   { href: "/admin/users", label: "Utenti", icon: Users },
   { href: "/admin/seasons", label: "Stagioni", icon: CalendarRange },
+  { href: "/admin/teams", label: "Squadre", icon: Shield },
+  { href: "/admin/leagues", label: "Leghe", icon: Network },
 ];
 
 function NavLink({

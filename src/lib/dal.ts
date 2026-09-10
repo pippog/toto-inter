@@ -3,6 +3,7 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
+import { LeagueRole } from "@/generated/prisma/enums";
 
 // Data Access Layer: unico punto da cui passano i controlli di autenticazione
 // e autorizzazione. Il proxy fa solo un controllo ottimistico sul cookie;
@@ -38,6 +39,32 @@ export const requireAdmin = cache(async () => {
   }
   return user;
 });
+
+const LEAGUE_ROLE_RANK: Record<LeagueRole, number> = {
+  MEMBER: 0,
+  MODERATOR: 1,
+  OWNER: 2,
+};
+
+// Autorizzazione per le pagine scoped-per-lega (Step 4, vedi piano):
+// Role.ADMIN resta un bypass globale (§4 del doc — createMatch/
+// setManualResult restano invece SEMPRE dietro requireAdmin, mai
+// delegabili a un OWNER di lega, perché una partita è condivisa tra tutte
+// le leghe che seguono la stessa squadra). Non cache()-ata come le altre
+// funzioni qui sopra: dipende da un leagueId per chiamata, non da un unico
+// valore per request.
+export async function requireLeagueRole(leagueId: string, minRole: LeagueRole) {
+  const user = await getCurrentUser();
+  if (user.role === "ADMIN") return user;
+
+  const membership = await prisma.leagueMembership.findUnique({
+    where: { userId_leagueId: { userId: user.id, leagueId } },
+  });
+  if (!membership || LEAGUE_ROLE_RANK[membership.role] < LEAGUE_ROLE_RANK[minRole]) {
+    redirect("/");
+  }
+  return user;
+}
 
 export const getActiveSeason = cache(async () => {
   return prisma.season.findFirstOrThrow({ where: { isActive: true } });

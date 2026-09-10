@@ -33,7 +33,7 @@ export default async function MatchDetailPage({
     ? []
     : (
         await prisma.player.findMany({
-          where: { active: true },
+          where: { active: true, teamId: match.teamId },
           orderBy: { name: "asc" },
           select: { name: true },
         })
