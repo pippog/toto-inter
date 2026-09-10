@@ -64,6 +64,16 @@ export async function setManualResult(
 ): Promise<ActionState> {
   await requireAdmin();
 
+  const match = await prisma.match.findUniqueOrThrow({
+    where: { id: matchId },
+    include: { season: true },
+  });
+  if (!match.season.isActive) {
+    return {
+      error: `Impossibile modificare il risultato: la stagione "${match.season.label}" non è quella attiva. I punteggi storici sono congelati (vedi motore di scoring).`,
+    };
+  }
+
   const homeScore = Number(formData.get("homeScore"));
   const awayScore = Number(formData.get("awayScore"));
   const scorerKind = formData.get("scorerKind") as ScorerKind;

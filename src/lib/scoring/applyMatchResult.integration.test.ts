@@ -10,20 +10,25 @@ describe("applyMatchResult — ricalcolo a cascata su correzione", () => {
   let seasonId: string;
   let userId: string;
   let teamId: string;
+  let leagueId: string;
   let matchIds: string[] = [];
 
   beforeAll(async () => {
+    // isActive:true perché applyMatchResult ora rifiuta di ricalcolare
+    // stagioni non attive (vedi guardia storica in applyMatchResult.ts);
+    // isolata dalla vera stagione attiva tramite season/team/league dedicati
+    // e cleanup in afterAll, quindi non interferisce con getActiveSeason().
     const season = await prisma.season.create({
-      data: { label: `TEST-CASCADE-${Date.now()}`, isActive: false },
+      data: { label: `TEST-CASCADE-${Date.now()}`, isActive: true },
     });
     seasonId = season.id;
 
-    // Team è una tabella di riferimento condivisa (non per-test): upsert
-    // invece di create, così più run non collidono sull'externalRef unique.
-    const team = await prisma.team.upsert({
-      where: { externalRef: "430539" },
-      update: {},
-      create: { externalRef: "430539", name: "Inter" },
+    // Team e League dedicati (non condivisi con l'Inter/"storica" reali):
+    // applyMatchResult ricalcola ogni lega che segue la squadra della
+    // partita, quindi riusare il Team reale trascinerebbe dentro il test
+    // anche la lega "storica" con i suoi utenti veri.
+    const team = await prisma.team.create({
+      data: { externalRef: `TEST-TEAM-${Date.now()}`, name: "Test Team" },
     });
     teamId = team.id;
 
@@ -36,6 +41,20 @@ describe("applyMatchResult — ricalcolo a cascata su correzione", () => {
       },
     });
     userId = user.id;
+
+    const league = await prisma.league.create({
+      data: {
+        name: `Test Cascade League ${Date.now()}`,
+        slug: `test-cascade-${Date.now()}`,
+        teamId,
+        createdByUserId: userId,
+      },
+    });
+    leagueId = league.id;
+
+    await prisma.leagueMembership.create({
+      data: { userId, leagueId, role: "OWNER" },
+    });
   });
 
   afterAll(async () => {
@@ -43,8 +62,11 @@ describe("applyMatchResult — ricalcolo a cascata su correzione", () => {
     await prisma.prediction.deleteMany({ where: { matchId: { in: matchIds } } });
     await prisma.match.deleteMany({ where: { id: { in: matchIds } } });
     await prisma.playerStreakState.deleteMany({ where: { seasonId } });
+    await prisma.leagueMembership.deleteMany({ where: { leagueId } });
+    await prisma.league.delete({ where: { id: leagueId } });
     await prisma.user.delete({ where: { id: userId } });
     await prisma.season.delete({ where: { id: seasonId } });
+    await prisma.team.delete({ where: { id: teamId } });
   });
 
   it("streak cresce 1→2→3 su 3 vittorie consecutive, poi si ricalcola a cascata dopo una correzione", async () => {
@@ -97,7 +119,7 @@ describe("applyMatchResult — ricalcolo a cascata su correzione", () => {
     }
 
     const scoreBeforeCorrection = await prisma.matchScore.findUniqueOrThrow({
-      where: { matchId_userId: { matchId: matches[2].id, userId } },
+      where: { matchId_userId_leagueId: { matchId: matches[2].id, userId, leagueId } },
     });
     expect(scoreBeforeCorrection.resStreakLenAfter).toBe(3);
     expect(Number(scoreBeforeCorrection.resStreakBonusPct)).toBeCloseTo(0.6);
@@ -114,7 +136,7 @@ describe("applyMatchResult — ricalcolo a cascata su correzione", () => {
     const [m1, m2, m3] = await Promise.all(
       matches.map((m) =>
         prisma.matchScore.findUniqueOrThrow({
-          where: { matchId_userId: { matchId: m.id, userId } },
+          where: { matchId_userId_leagueId: { matchId: m.id, userId, leagueId } },
         }),
       ),
     );

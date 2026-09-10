@@ -43,6 +43,22 @@ export const getActiveSeason = cache(async () => {
   return prisma.season.findFirstOrThrow({ where: { isActive: true } });
 });
 
+// Fix minimo per lo Step 3 (motore di scoring per-lega): ogni utente oggi è
+// membro di una sola lega (la "storica" di backfill, vedi piano), quindi
+// risolverla dalla sua LeagueMembership più vecchia riproduce esattamente il
+// comportamento pre-scoping. Le pagine che oggi leggono MatchScore/
+// PlayerStreakState senza nozione di lega usano questo helper come ponte;
+// lo Step 5 lo sostituirà con un leagueId esplicito preso dalla route.
+export const getDefaultLeague = cache(async () => {
+  const user = await getCurrentUser();
+  const membership = await prisma.leagueMembership.findFirstOrThrow({
+    where: { userId: user.id },
+    orderBy: { joinedAt: "asc" },
+    include: { league: true },
+  });
+  return membership.league;
+});
+
 // Permette di sfogliare una stagione passata (es. dal selettore in
 // classifica/partite) passando il suo id; senza id o con un id non
 // valido si ricade sulla stagione attiva.

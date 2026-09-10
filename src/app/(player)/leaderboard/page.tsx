@@ -1,5 +1,5 @@
 import { Crown, Trophy } from "lucide-react";
-import { getSeason } from "@/lib/dal";
+import { getSeason, getDefaultLeague } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { Avatar } from "@/components/avatar";
 import { EmptyState } from "@/components/empty-state";
@@ -20,12 +20,13 @@ export default async function LeaderboardPage({
   searchParams: Promise<{ season?: string }>;
 }) {
   const { season: seasonParam } = await searchParams;
-  const [season, seasons] = await Promise.all([
+  const [season, seasons, league] = await Promise.all([
     getSeason(seasonParam),
     prisma.season.findMany({
       select: { id: true, label: true, isActive: true },
       orderBy: { label: "desc" },
     }),
+    getDefaultLeague(),
   ]);
 
   // Nella stagione attiva la classifica è quella del roster odierno. Per
@@ -35,11 +36,15 @@ export default async function LeaderboardPage({
   const users = season.isActive
     ? await prisma.user.findMany({
         where: { status: "ACTIVE" },
-        include: { matchScores: { where: { match: { seasonId: season.id } } } },
+        include: {
+          matchScores: { where: { leagueId: league.id, match: { seasonId: season.id } } },
+        },
       })
     : await prisma.user.findMany({
-        where: { matchScores: { some: { match: { seasonId: season.id } } } },
-        include: { matchScores: { where: { match: { seasonId: season.id } } } },
+        where: { matchScores: { some: { leagueId: league.id, match: { seasonId: season.id } } } },
+        include: {
+          matchScores: { where: { leagueId: league.id, match: { seasonId: season.id } } },
+        },
       });
 
   const standings = users

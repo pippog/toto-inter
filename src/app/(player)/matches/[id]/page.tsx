@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Target, Crosshair, Sparkles, TrendingUp } from "lucide-react";
-import { getCurrentUser, getVisiblePredictions } from "@/lib/dal";
+import { getCurrentUser, getVisiblePredictions, getDefaultLeague } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { PredictionForm } from "./prediction-form";
 import { CompetitionBadge } from "@/components/competition-badge";
@@ -39,8 +39,9 @@ export default async function MatchDetailPage({
         })
       ).map((p) => p.name);
 
+  const league = await getDefaultLeague();
   const allScores = match.status === "FINISHED"
-    ? await prisma.matchScore.findMany({ where: { matchId: id } })
+    ? await prisma.matchScore.findMany({ where: { matchId: id, leagueId: league.id } })
     : [];
   const myScore = allScores.find((s) => s.userId === user.id) ?? null;
   const wRes = allScores.filter((s) => s.resCorrect).length;

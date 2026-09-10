@@ -9,8 +9,9 @@ export type CreateSeasonState = { error?: string } | undefined;
 // Rollover stagione: crea la nuova Season come attiva e disattiva tutte le
 // altre nella stessa transazione. Streak e classifica ripartono da zero
 // senza bisogno di codice dedicato: PlayerStreakState è scoped per
-// (userId, seasonId), quindi la nuova stagione semplicemente non ha ancora
-// righe (vedi recomputeSeasonFrom, che tratta l'assenza come streak a 0).
+// (userId, seasonId, leagueId), quindi la nuova stagione semplicemente non
+// ha ancora righe (vedi recomputeLeagueSeasonFrom, che tratta l'assenza
+// come streak a 0).
 export async function createSeason(
   _prevState: CreateSeasonState,
   formData: FormData,

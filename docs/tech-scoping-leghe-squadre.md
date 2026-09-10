@@ -12,7 +12,7 @@
 
 - [x] **Step 1** — `Team` + backfill Inter + `Match.teamId`/`Player.teamId` *(implementato e applicato in produzione il 2026-09-09 — vedi migrazioni `20260909145919_add_team_and_teamid_nullable`/`20260909150139_require_team_id_and_scope_player_unique` + `prisma/backfill-team-inter.ts`)*
 - [x] **Step 2** — `League` + `LeagueMembership` + lega di default "storica" + backfill utenti esistenti *(implementato e applicato in produzione il 2026-09-09 — vedi `prisma/backfill-league-storica.ts`, 29/29 utenti iscritti)*
-- [ ] **Step 3** — Motore di scoring: `applyMatchResult`→`recomputeLeagueSeasonFrom`, `MatchScore.leagueId`, migrazione PK `PlayerStreakState` *(medio-grande — la migrazione più rischiosa, vedi §8.1)*
+- [x] **Step 3** — Motore di scoring: `applyMatchResult`→`recomputeLeagueSeasonFrom`, `MatchScore.leagueId`, migrazione PK `PlayerStreakState` *(implementato e applicato in produzione il 2026-09-10 — vedi migrazioni `20260910142956_add_leagueid_nullable_to_matchscore_streakstate`/`20260910143500_require_matchscore_league_id`/`20260910144000_require_playerstreakstate_league_pk` + `prisma/backfill-matchscore-streakstate-league.ts`. Verifica di parità totalPoints pre/post su staging ha scoperto un bug preesistente — non introdotto da questo step — nel denominatore wRes/wMar per le stagioni storiche: `applyMatchResult` ora rifiuta esplicitamente di ricalcolare qualunque stagione con `isActive:false`, vedi nota in §3 e commento in `applyMatchResult.ts`)*
 - [ ] **Step 4** — Admin: `/admin/teams`, `/admin/leagues`, `requireLeagueRole` in `dal.ts` *(medio)*
 - [ ] **Step 5** — App giocatore: routing `/leagues/[leagueId]/...`, `LeagueSelector`, leaderboard/home/matches riscritti, fix `getVisiblePredictions` *(grande)*
 - [ ] **Step 6** — Flusso invito: `LeagueInvite`, riscrittura `inviteUser`/`set-password`, pagina invito per-lega *(medio)*
@@ -145,6 +145,8 @@ Il chiamante da riscrivere è `applyMatchResult.ts` → `recomputeSeasonFrom` di
 - Ogni lega gira nella propria `$transaction` indipendente: un fallimento su una lega non blocca le altre.
 
 **Multi-squadra**: nessuna modifica di formula. `deriveMatchResult` è già team-agnostico nella logica; sul path attivo (`deriveHighlightlyResult.ts`) il parametro è già `teamId` generico, nessuna rinomina da fare (vedi §6). `scorer.ts` ("Autogol (a favore dell'Inter)") è l'unico punto col testo Inter-specifico da parametrizzare su `team.name`.
+
+> **Nota 2026-09-10 — bug preesistente scoperto durante l'implementazione (non introdotto da questo step).** `allActivePlayerIds` riflette lo stato `User.status === "ACTIVE"` **al momento del ricalcolo**, non chi giocava davvero all'epoca. Le stagioni storiche importate (2023-24/2024-25/2025-26) includono account ormai `DISABLED` apposta con `MatchScore` reali da preservare (vedi §2 punto 4): ricalcolarle li escluderebbe dai denominatori wRes/wMar, gonfiando silenziosamente i punti di chi è rimasto. Verificato concretamente su staging: differenze reali fino al 40% su una stagione storica prima di essere scoperto e corretto. Il meccanismo che ha prodotto quei punteggi storici non è documentato né riproducibile col codice attuale, quindi **`applyMatchResult` ora rifiuta esplicitamente (throw) di ricalcolare qualunque stagione con `isActive:false`**, sia dal form admin (`setManualResult` ritorna un errore prima di scrivere) sia da qualunque futuro chiamante — invece di tentare di indovinarne la formula originale. Se in futuro serve davvero correggere un risultato storico, va prima capito/ricostruito il denominatore originale.
 
 ---
 

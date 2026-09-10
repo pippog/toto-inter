@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { connection } from "next/server";
 import { Trophy, CalendarDays, ArrowRight, Flame, Target, Hash, TrendingUp, History } from "lucide-react";
-import { getCurrentUser, getActiveSeason, getVisiblePredictions } from "@/lib/dal";
+import { getCurrentUser, getActiveSeason, getVisiblePredictions, getDefaultLeague } from "@/lib/dal";
 import { LiveMatchCard } from "@/components/live-match-card";
 import { prisma } from "@/lib/db";
 import { Avatar } from "@/components/avatar";
@@ -17,10 +17,13 @@ import { AnimatedNumber } from "@/components/animated-number";
 export default async function HomePage() {
   const user = await getCurrentUser();
   const season = await getActiveSeason();
+  const league = await getDefaultLeague();
 
   const users = await prisma.user.findMany({
     where: { status: "ACTIVE" },
-    include: { matchScores: { where: { match: { seasonId: season.id } } } },
+    include: {
+      matchScores: { where: { leagueId: league.id, match: { seasonId: season.id } } },
+    },
   });
 
   const fullStandings = users
@@ -37,7 +40,9 @@ export default async function HomePage() {
   const standings = fullStandings.slice(0, 5);
 
   const streak = await prisma.playerStreakState.findUnique({
-    where: { userId_seasonId: { userId: user.id, seasonId: season.id } },
+    where: {
+      userId_seasonId_leagueId: { userId: user.id, seasonId: season.id, leagueId: league.id },
+    },
   });
 
   await connection();
@@ -63,7 +68,7 @@ export default async function HomePage() {
     upcomingMatches.length > 0 ? Math.round((predictedUpcoming / upcomingMatches.length) * 100) : 0;
 
   const myMatchScores = await prisma.matchScore.findMany({
-    where: { userId: user.id, match: { seasonId: season.id } },
+    where: { userId: user.id, leagueId: league.id, match: { seasonId: season.id } },
     include: { match: true },
     orderBy: { match: { kickoffAt: "asc" } },
   });

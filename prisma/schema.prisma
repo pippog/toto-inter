@@ -110,7 +110,9 @@ model League {
   joinCode        String?  @unique
   createdAt       DateTime @default(now())
 
-  memberships LeagueMembership[]
+  memberships  LeagueMembership[]
+  matchScores  MatchScore[]
+  streakStates PlayerStreakState[]
 }
 
 model LeagueMembership {
@@ -201,6 +203,8 @@ model MatchScore {
   match                    Match    @relation(fields: [matchId], references: [id])
   userId                   String
   user                     User     @relation(fields: [userId], references: [id])
+  leagueId                 String
+  league                   League   @relation(fields: [leagueId], references: [id])
 
   resCorrect               Boolean
   marcatoreCorrect         Boolean
@@ -220,7 +224,8 @@ model MatchScore {
 
   computedAt               DateTime @default(now())
 
-  @@unique([matchId, userId])
+  @@unique([matchId, userId, leagueId])
+  @@index([leagueId])
 }
 
 // Stato corrente dello streak per utente/stagione — persistito per evitare
@@ -230,12 +235,14 @@ model PlayerStreakState {
   user                    User     @relation(fields: [userId], references: [id])
   seasonId                String
   season                  Season   @relation(fields: [seasonId], references: [id])
+  leagueId                String
+  league                  League   @relation(fields: [leagueId], references: [id])
 
   currentResStreak        Int      @default(0)
   currentMarcatoreStreak  Int      @default(0)
   lastMatchIdApplied      String?
 
-  @@id([userId, seasonId])
+  @@id([userId, seasonId, leagueId])
 }
 
 model SyncLog {
