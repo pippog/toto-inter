@@ -1,12 +1,13 @@
 name: Send prediction reminders
 
 on:
-  schedule:
-    # Ogni 15 min: l'endpoint invia il reminder appena il kickoff è entro
-    # 150 min da "ora" e resta idoneo (reminderSentAt null) finché non viene
-    # inviato, quindi anche ritardi/salti dello scheduler di GitHub Actions
-    # non fanno perdere una partita — il giro successivo la recupera.
-    - cron: "*/15 * * * *"
+  # Lo schedule ogni 15 min è stato spostato su cron-job.org (2026-09-15):
+  # GitHub Actions ritarda/salta i trigger `schedule` anche di ore sui repo
+  # a bassa attività (osservato un buco di 5h25m il 2026-09-14, che ha fatto
+  # perdere per sempre il reminder di Inter-Udinese perché il kickoff era
+  # già passato quando il run finalmente è partito). cron-job.org chiama
+  # direttamente l'endpoint con puntualità dedicata. workflow_dispatch resta
+  # per poter rilanciare manualmente in caso di bisogno.
   workflow_dispatch:
 
 jobs:
