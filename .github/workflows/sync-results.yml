@@ -1,11 +1,11 @@
 name: Sync match results
 
 on:
-  schedule:
-    # Vercel Hobby permette cron nativi solo 1 volta/giorno: questo workflow
-    # gira ogni ora al posto suo per il solo aggiornamento risultati
-    # (la scoperta prossime partite resta sul cron Vercel, 1 volta/giorno).
-    - cron: "0 * * * *"
+  # Lo schedule orario è stato spostato su cron-job.org (2026-09-15), stesso
+  # motivo del reminder pronostico: GitHub Actions ritarda/salta i trigger
+  # `schedule` anche di ore sui repo a bassa attività (vedi
+  # send-prediction-reminders.yml). workflow_dispatch resta per rilanciare
+  # manualmente in caso di bisogno.
   workflow_dispatch:
 
 jobs:
