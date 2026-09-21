@@ -10,17 +10,42 @@ function foldAccents(name: string): string {
   return name.normalize("NFD").replace(DIACRITICS_PATTERN, "").toLowerCase().trim();
 }
 
+// Cognome + iniziale del nome, per il fallback sotto: "L. Martinez" e
+// "Lautaro Martínez" hanno lo stesso {initial: "l", surname: "martinez"}
+// pur non essendo la stessa stringa nemmeno dopo il fold degli accenti.
+function parseNamePart(name: string): { initial: string; surname: string } {
+  const parts = foldAccents(name).replace(/\./g, "").split(/\s+/).filter(Boolean);
+  return { initial: parts[0]?.charAt(0) ?? "", surname: parts.at(-1) ?? "" };
+}
+
 // Highlightly restituisce i nomi marcatore in ASCII puro ("H. Calhanoglu"),
 // mentre la rosa (Player, sincronizzata l'ultima volta da API-Football e
 // congelata fino al prossimo mercato) li ha con gli accenti originali
 // ("H. Çalhanoğlu"). Il confronto in scorerMatches (compare.ts) è una
 // uguaglianza esatta case-insensitive, quindi senza questo passaggio il
 // marcatore risulterebbe sempre "sbagliato" per ogni pronostico su un
-// giocatore con nome accentato. Se il giocatore non è (più) in rosa, si
-// tiene il nome grezzo del provider — non c'è nulla con cui riconciliarlo.
-function resolveCanonicalScorerName(rawName: string, players: { name: string }[]): string {
+// giocatore con nome accentato.
+//
+// Il fold da solo non basta: Highlightly non è coerente nel formato del
+// nome, a volte abbreviato ("L. Martinez") a volte per esteso ("Carlos
+// Augusto"), mentre la rosa tiene alcuni giocatori per esteso apposta per
+// disambiguare (es. "Lautaro Martínez" vs "Josep Martínez"). Il 19/09/2026
+// (Inter-Roma) "L. Martinez" non ha trovato match esatto contro "Lautaro
+// Martínez" e il marcatore corretto di 4 pronostici è stato segnato
+// sbagliato. Fallback: cognome+iniziale, applicato solo se risolve a un
+// unico giocatore in rosa — altrimenti si tiene il nome grezzo del
+// provider piuttosto che rischiare un match ambiguo.
+export function resolveCanonicalScorerName(rawName: string, players: { name: string }[]): string {
   const folded = foldAccents(rawName);
-  return players.find((p) => foldAccents(p.name) === folded)?.name ?? rawName;
+  const exact = players.find((p) => foldAccents(p.name) === folded);
+  if (exact) return exact.name;
+
+  const raw = parseNamePart(rawName);
+  const candidates = players.filter((p) => {
+    const parsed = parseNamePart(p.name);
+    return parsed.initial === raw.initial && parsed.surname === raw.surname;
+  });
+  return candidates.length === 1 ? candidates[0].name : rawName;
 }
 
 // Per ogni partita passata non ancora conclusa (e non corretta a mano —
