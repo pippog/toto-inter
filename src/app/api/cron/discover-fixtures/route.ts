@@ -81,6 +81,11 @@ export async function GET(request: Request) {
   const notifyMatches: { opponent: string; kickoffAt: Date; competition: Competition; kind: "created" | "adopted" }[] = [];
 
   for (const fx of fixtures) {
+    // Le amichevoli non fanno parte del giochino (decisione del 2026-10-05
+    // dopo l'amichevole con la Lumezzane, cancellata a mano): non vengono
+    // né create né agganciate. Una partita già nota non viene toccata.
+    if (fx.competition === "FRIENDLY") continue;
+
     const deadline = new Date(
       fx.kickoffAt.getTime() - PREDICTION_DEADLINE_MINUTES_BEFORE_KICKOFF * 60_000,
     );
