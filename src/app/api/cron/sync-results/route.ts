@@ -10,12 +10,22 @@ function foldAccents(name: string): string {
   return name.normalize("NFD").replace(DIACRITICS_PATTERN, "").toLowerCase().trim();
 }
 
-// Cognome + iniziale del nome, per il fallback sotto: "L. Martinez" e
-// "Lautaro Martínez" hanno lo stesso {initial: "l", surname: "martinez"}
-// pur non essendo la stessa stringa nemmeno dopo il fold degli accenti.
-function parseNamePart(name: string): { initial: string; surname: string } {
-  const parts = foldAccents(name).replace(/\./g, "").split(/\s+/).filter(Boolean);
-  return { initial: parts[0]?.charAt(0) ?? "", surname: parts.at(-1) ?? "" };
+// Nomi propri + cognome, per il fallback sotto: "L. Martinez" e "Lautaro
+// Martínez" hanno lo stesso cognome e nomi propri compatibili ("l" è
+// l'iniziale di "lautaro") pur non essendo la stessa stringa nemmeno dopo
+// il fold degli accenti.
+function parseNameParts(name: string): { given: string[]; surname: string } {
+  const parts = foldAccents(name).replace(/\./g, " ").split(/\s+/).filter(Boolean);
+  return { given: parts.slice(0, -1), surname: parts.at(-1) ?? "" };
+}
+
+// Due nomi propri sono compatibili se uguali o se uno è l'iniziale
+// dell'altro. Basta una coppia compatibile: "F. Esposito", "P. Esposito" e
+// "Pio Esposito" combaciano tutti con "Francesco Pio Esposito" in rosa.
+function givenNamesCompatible(a: string[], b: string[]): boolean {
+  return a.some((x) =>
+    b.some((y) => x === y || (x.length === 1 && y.startsWith(x)) || (y.length === 1 && x.startsWith(y))),
+  );
 }
 
 // Highlightly restituisce i nomi marcatore in ASCII puro ("H. Calhanoglu"),
@@ -32,18 +42,29 @@ function parseNamePart(name: string): { initial: string; surname: string } {
 // disambiguare (es. "Lautaro Martínez" vs "Josep Martínez"). Il 19/09/2026
 // (Inter-Roma) "L. Martinez" non ha trovato match esatto contro "Lautaro
 // Martínez" e il marcatore corretto di 4 pronostici è stato segnato
-// sbagliato. Fallback: cognome+iniziale, applicato solo se risolve a un
-// unico giocatore in rosa — altrimenti si tiene il nome grezzo del
-// provider piuttosto che rischiare un match ambiguo.
+// sbagliato. Fallback: stesso cognome e nomi propri compatibili (vedi
+// givenNamesCompatible), applicato solo se risolve a un unico giocatore in
+// rosa — altrimenti si tiene il nome grezzo del provider piuttosto che
+// rischiare un match ambiguo.
+//
+// Il fallback confrontava solo l'iniziale del primo nome: per i nomi
+// composti non bastava. L'08/11/2026 (Inter-Como) Highlightly ha restituito
+// "Pio Esposito" mentre la rosa aveva "F. Esposito" (Francesco Pio
+// Esposito): iniziali diverse, nessun match, salvato il nome grezzo e il
+// marcatore corretto di chi aveva scelto "F. Esposito" segnato sbagliato.
+// La rosa ora tiene il nome per esteso e qui si accettano tutte le
+// abbreviazioni ragionevoli. `players` deve contenere solo i giocatori
+// attivi della squadra: una voce disattivata (ceduto, doppione) non deve
+// poter "vincere" il match.
 export function resolveCanonicalScorerName(rawName: string, players: { name: string }[]): string {
   const folded = foldAccents(rawName);
   const exact = players.find((p) => foldAccents(p.name) === folded);
   if (exact) return exact.name;
 
-  const raw = parseNamePart(rawName);
+  const raw = parseNameParts(rawName);
   const candidates = players.filter((p) => {
-    const parsed = parseNamePart(p.name);
-    return parsed.initial === raw.initial && parsed.surname === raw.surname;
+    const parsed = parseNameParts(p.name);
+    return parsed.surname === raw.surname && givenNamesCompatible(parsed.given, raw.given);
   });
   return candidates.length === 1 ? candidates[0].name : rawName;
 }
@@ -69,7 +90,10 @@ export async function GET(request: Request) {
   });
 
   const results: Array<{ matchId: string; finished: boolean; error?: string }> = [];
-  const players = await prisma.player.findMany({ select: { name: true } });
+  const players = await prisma.player.findMany({
+    where: { active: true },
+    select: { name: true, teamId: true },
+  });
 
   // Un fixture che fallisce (es. non trovato lato Highlightly) non deve
   // bloccare l'aggiornamento di tutte le partite successive nella lista:
@@ -85,7 +109,10 @@ export async function GET(request: Request) {
 
       const firstScorerPlayerName =
         result.firstScorerKind === "PLAYER_GOAL" && result.firstScorerPlayerName
-          ? resolveCanonicalScorerName(result.firstScorerPlayerName, players)
+          ? resolveCanonicalScorerName(
+              result.firstScorerPlayerName,
+              players.filter((p) => p.teamId === match.teamId),
+            )
           : result.firstScorerPlayerName;
 
       await prisma.match.update({
